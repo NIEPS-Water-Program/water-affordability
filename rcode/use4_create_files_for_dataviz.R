@@ -18,14 +18,14 @@ county <- read_sf(paste0(swd_data, "county.geojson"))
 leaflet() %>% addProviderTiles("Stamen.TonerLite") %>% 
   addPolygons(data = bk.up,  fillOpacity= 0.6,  fillColor = "gray", color="black",  weight=3) %>% 
   addPolygons(data = county,  fillOpacity= 0.3,  fillColor = "white", color="red",  weight=1) 
-geojson_write(county, file = paste0(swd_html, "county.geojson"))
+geojson_write(county, file = paste0(swd_html, "mapbox_source//county.geojson"))
 
 state <- read_sf(paste0(swd_data, "state.geojson")) #%>% ms_simplify(keep = 0.5, keep_shapes=TRUE)
-geojson_write(state, file = paste0(swd_html, "state.geojson"))
+geojson_write(state, file = paste0(swd_html, "mapbox_source//state.geojson"))
 
 
 #MUNIS COME FROM DIFFERENT SOURCES - except OR and CA
-all.muni  <- read_sf(paste0(swd_data, "muni.geojson"))
+all.muni  <- read_sf(paste0(swd_data, "mapbox_source//muni.geojson"))
 bk.up <- all.muni
 all.muni <- all.muni %>% ms_simplify(keep = 0.25, keep_shapes=TRUE); #already been simplified by 0.5 (0.15 is a little too much - file size is 5 MB. 0.20 is good but file size is 10 MB and slow)
 leaflet() %>% addProviderTiles("Stamen.TonerLite") %>% 
@@ -35,7 +35,7 @@ geojson_write(all.muni, file = paste0(swd_html, "muni.geojson"))
 
 #save point file for labels
 all.muni.pt <- st_centroid(all.muni)
-geojson_write(all.muni.pt, file = paste0(swd_html, "muni_centers.geojson"))
+geojson_write(all.muni.pt, file = paste0(swd_html, "mapbox_source//muni_centers.geojson"))
 rm(all.muni.pt, bk.up)
 
 
@@ -269,18 +269,18 @@ for (i in 1:length(hh_vols)){
 ##                                                    READ IN RESULTS FOR All States
 ##########################################################################################################################################################################################################
 #read in files and save over
-cs <- read.csv(paste0(swd_results, "\\utility_census_summary.csv")) %>% mutate(state = tolower(substring(pwsid, 0, 2))) %>% filter(pwsid %in% full.summary$pwsid)
+cs <- read.csv(paste0(swd_results, "\\utility_census_summary.csv")) %>% mutate(state = tolower(substring(pwsid, 0, 2))) %>% filter(pwsid %in% full.summary$pwsid) %>% select(-service_area, -state)
 write.csv(cs, paste0(swd_html, "\\census_summary.csv"), row.names = FALSE)
 
-blm <- read.csv(paste0(swd_results, "\\utility_bls_monthly.csv")) %>% select(pwsid, date, unemploy_rate)
-write.csv(blm, paste0(swd_html, "\\utility_bls_monthly.csv"), row.names = FALSE)
+blm <- read.csv(paste0(swd_results, "\\utility_bls_monthly.csv")) %>% select(pwsid, date, unemploy_rate) 
+write.csv(blm, paste0(swd_html, "\\bls_monthly.csv"), row.names = FALSE)
 
 bls <- read.csv(paste0(swd_results, "\\utility_bls_summary.csv"))
 #to lower file size save out every other year
 current_year <- year(today())
 last_even_year <- ifelse(substr(current_year,4,4) %in% c(1,3,5,7,9), current_year-1, current_year)
-bls <- bls %>% filter(year %in% c(seq(1990,last_even_year,2), current_year)) %>% select(pwsid, year, unemploy_rate, state, sizeCategory, owner_type)
-write.csv(bls, paste0(swd_html, "\\utility_bls_summary.csv"), row.names = FALSE)
+bls <- bls %>% filter(year %in% c(seq(1990,last_even_year,2), current_year)) %>% select(pwsid, year, unemploy_rate)
+write.csv(bls, paste0(swd_html, "\\bls_summary.csv"), row.names = FALSE)
 
 
 
@@ -289,31 +289,17 @@ all.cost.to.bill <- read.csv(paste0(swd_results, "utility_idws.csv"))
 table(substr(all.cost.to.bill$pwsid,0,2))
 all.cost.to.bill <- all.cost.to.bill %>% select(pwsid, service_area, category, hh_use, percent_income, annual_cost, percent_pays_more) %>% mutate(state = tolower(substr(pwsid, 0, 2))) %>% 
    filter(category=="inside" | category=="outside" & percent_pays_more > 0) %>% filter(pwsid %in% unique(full.summary$pwsid)) 
-all.cost.to.bill <- merge(all.cost.to.bill, df, by.x="pwsid", by.y="pwsid", all.x=TRUE)
 
 #remove very small utilities because not enough data
 keep.list <- cs %>% filter(keep == "keep")
 all.cost.to.bill <- all.cost.to.bill %>% filter(pwsid %in% keep.list$pwsid)
 
 for (i in 1:length(hh_vols)){
-  zt <- all.cost.to.bill %>% filter(hh_use == hh_vols[i])
+  zt <- all.cost.to.bill %>% filter(hh_use == hh_vols[i]) %>% select(pwsid, category, percent_income, annual_cost, percent_pays_more) %>% 
+    mutate(percent_pays_more = round(percent_pays_more,1), annual_cost = round(annual_cost, 0))
   write.csv(zt, paste0(swd_html, "IDWS\\idws_",hh_vols[i],".csv"), row.names=FALSE); #can split by hh_volume
   print(hh_vols[i])
 }
-
-
-#read in original
-for (i in 1:length(hh_vols)){
-  idws <- read.csv(paste0(swd_html, "IDWS\\idws_",hh_vols[i],".csv"));
-  
-  zt <- idws %>% select(pwsid, category, percent_income, annual_cost, percent_pays_more) %>% 
-    mutate(percent_pays_more = round(percent_pays_more,1), annual_cost = round(annual_cost, 0))
-  write.csv(zt, paste0(swd_html, "IDWS\\idws_small_",hh_vols[i],".csv"), row.names=FALSE); #can split by hh_volume
-  print(hh_vols[i])
-}
-
-
-
 
 
 #########################################################################################################################################################################################################
