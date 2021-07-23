@@ -9,9 +9,8 @@ Information about Project: https://nicholasinstitute.duke.edu/water-affordabilit
 ## Folders
 
 1. **data** folder contains the raw service area boundaries, census, and rates data needed to create the dashboard. Many of the census files are pulled dynamically from the r script and are not provided here. The **rates_data** are provided in csv format for each state in the dashboard. The metadata and templates are provided as well for those who wish to create a database for a state not yet represented. The **census_time** folder contains two spreadsheets needed for the dashboard to display population and unemployment change over time. These data are not needed for the affordability analysis.
-3. **rcode** folder contains all the r code needed to obtain the data, estimate bills, calculate affordability metrics, and create files for the dashboard. The rscripts are numbered in the order they must be run for the code to work. Please refer to the workflow document provided.
-4. **results** folder contains the results from the rscript. We do not include those files here because they are large. However, we provide the simplified versions used to develop the dashboard in the www folder. We provide the folder since it is necessary for the rcode to run correctly.
-5. **www** folder contains the html, css, javascript, and data files used to create the affordability dashboard: https://www.nicholasinstitute.duke.edu/water-affordability/water-affordability-dashboard. Users will need to create their own api key and mapbox tiles.
+2. **rcode** folder contains all the r code needed to obtain the data, estimate bills, calculate affordability metrics, and create files for the dashboard. The rscripts are numbered in the order they must be run for the code to work. Please refer to the workflow document provided.
+3. **results** folder contains the results from the rscript. We do not include those files here because they are large. However, we provide the simplified versions used to develop the dashboard in the www folder. We provide the folder since it is necessary for the rcode to run correctly.
 
 
 ## Terms of Use
@@ -35,6 +34,7 @@ This work is licensed under a
 ## Workflow
 The process of creating the dashboard is detaield in the pdf: "Workflow for Creating Water Affordability Dashboard". Briefly, we manually collected rates data and used Rcran to access census and water service area boundaries. We combined the rates and census data with the service area boundaries to calculate affordability metrics in Rcran. The data are visualized using html and javascript. The process is illustrated in the figure below.
 
-https://user-images.githubusercontent.com/15807329/126493352-fb314331-1e6d-4502-9e1d-0ef4610d7d45.png
+![process-overview](https://user-images.githubusercontent.com/15807329/126791513-2b65c0f9-956f-4aca-9dae-c2ae87e3cd6f.png)
+
 
 
