@@ -11,6 +11,7 @@ Information about Project: https://nicholasinstitute.duke.edu/water-affordabilit
 1. **data** folder contains the raw service area boundaries, census, and rates data needed to create the dashboard. Many of the census files are pulled dynamically from the r script and are not provided here. The **rates_data** are provided in csv format for each state in the dashboard. The metadata and templates are provided as well for those who wish to create a database for a state not yet represented. The **census_time** folder contains two spreadsheets needed for the dashboard to display population and unemployment change over time. These data are not needed for the affordability analysis.
 2. **rcode** folder contains all the r code needed to obtain the data, estimate bills, calculate affordability metrics, and create files for the dashboard. The rscripts are numbered in the order they must be run for the code to work. Please refer to the workflow document provided.
 3. **results** folder contains the results from the rscript. We do not include those files here because they are large. However, we provide the simplified versions used to develop the dashboard in the www folder. We provide the folder since it is necessary for the rcode to run correctly.
+4. **www** folder contains the data used to create the dashboard. The dashboard was built using html, css, and javascript. We also used mapbox tilesets and apis. Users will need to obtain their own API keys and create their own tilesets for use.
 
 
 ## Terms of Use
