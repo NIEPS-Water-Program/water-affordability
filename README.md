@@ -18,10 +18,7 @@ Information about Project: https://nicholasinstitute.duke.edu/water-affordabilit
 1. Files in the data and rcode folder are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0: https://creativecommons.org/licenses/by/4.0/) by Duke University on behalf of the Nicholas Institute for Environmental Solutions.
 2. Files in the www folder are licensed under MIT license.
 3. Attribute the data, code, and dashboard as "Patterson, Lauren, Martin Doyle, Aislinn McLaughlin, and Sophia Bryson. 2021. Water Affordability Data Repository. Nicholas Institute for Environmental Policy Solutions at Duke University. https://github.com/NIEPS-Water-Program/water-affordability" or "NIEPS Water Affordability Data" for short, and the url: https://github.com/NIEPS-Water-Program/water-affordability.
-4. For publications that use the data, please cite the following publication: "Patterson, LA and MW Doyle. 2021. Exploring the affordability of water services across and within utilities in the United States. Plos One. doi: 
-5. 
-
-forthcoming...
+4. For publications that use the data, please cite the following publication: "Patterson, LA and MW Doyle. 2021. Exploring the affordability of water services across and within utilities in the United States. ... currently in review ... will add details. 
 
 Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
 
@@ -35,5 +32,9 @@ This work is licensed under a
 [cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
 
 
-## Workflow....
-forthcoming
+## Workflow
+The process of creating the dashboard is detaield in the pdf: "Workflow for Creating Water Affordability Dashboard". Briefly, we manually collected rates data and used Rcran to access census and water service area boundaries. We combined the rates and census data with the service area boundaries to calculate affordability metrics in Rcran. The data are visualized using html and javascript. The process is illustrated in the figure below.
+
+https://user-images.githubusercontent.com/15807329/126493352-fb314331-1e6d-4502-9e1d-0ef4610d7d45.png
+
+
