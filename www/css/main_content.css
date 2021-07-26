@@ -1,0 +1,789 @@
+/*! HTML5 Boilerplate v6.0.1 | MIT License | https://html5boilerplate.com/ */
+
+/*
+ * What follows is the result of much research on cross-browser styling.
+ * Credit left inline and big thanks to Nicolas Gallagher, Jonathan Neal,
+ * Kroc Camen, and the H5BP dev community and team.
+ */
+
+/* ==========================================================================
+   Base styles: opinionated defaults
+   ========================================================================== */
+
+html {
+    color: #222;
+    /*font-size: 1em;
+    line-height: 1.4;*/
+}
+
+/*
+ * Remove text-shadow in selection highlight:
+*/
+::-moz-selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+::selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+/*
+ * A better looking default horizontal rule
+ */
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+/*
+ * Remove the gap between audio, canvas, iframes,
+ * images, videos and the bottom of their containers:
+ * https://github.com/h5bp/html5-boilerplate/issues/440
+ */
+
+audio,
+canvas,
+iframe,
+img,
+svg,
+video {
+    vertical-align: middle;
+}
+
+/*
+ * Remove default fieldset styles.
+ */
+
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/*
+ * Allow only vertical resizing of textareas.
+ */
+
+textarea {
+    resize: vertical;
+}
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+/*Color Palette*/
+/*https://fonts.google.com/*
+/*display: flow-root is the new version of the clearfix hack*/
+
+/* Global Styles
+---------------------------------------*/
+body{
+  color: #343434; /*dark gray*/
+  font-family: Lato, verdana, sans-serif;
+  font-size: 16px;
+  font-style: normal; /*italic and oblique are other options*/
+  font-weight: 300; /*goes from 100 to 900 with 100 being lighter and 900 darker*/
+  line-height: 1.4;
+  max-width: 1600px;
+  margin: auto;
+  overflow-x: hidden;  /*gets rid of the horizontal scroll bar at the bottom*/
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+ font-family: Quicksand, sans-serif; 
+}
+
+p {
+  font-size: 14px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+
+ul{
+   list-style: none;
+   list-style-position:outside; 
+   padding-left: 12px;
+   text-indent: 2px;
+}
+
+li{
+    font-family: Lato, verdana; 
+    font-size: 14px;
+    padding-top: 0.4em;
+}
+
+/*Make URL's IoW specific*/
+a {
+  /*color: #831a1b;*/
+  color: #3f97a8;
+  text-decoration: underline;
+}
+a:hover {
+  color: #831a1b;
+  text-decoration: underline; 
+}
+
+
+/*##########################################################################################################
+/* TABLE FORMATTING
+------------------------------------*/
+table {
+  font-size: 12px;
+}
+
+th{
+  border: thin solid black;
+  text-align: center;
+}
+
+td{
+  border: 1px solid black;
+  padding-top: 0.4em;
+  text-align: center;
+  vertical-align: middle;
+  width: 90px;
+}
+
+tr{
+  height: 35px;
+  vertical-align: middle;
+}
+
+/*.table > tbody > tr > td { 
+    text-align: left;
+    vertical-align: middle;
+ }
+*/
+ .my-custom-scrollbar {
+    /*height: 350px;*/
+    overflow: auto;
+    position: relative;
+  }
+  .my-custom-scrollbar thead th {
+    background: white; 
+    position: sticky; 
+    top: 0; 
+  }
+
+.table-wrapper-scroll-y{ display: block; }
+select {text-align-last:center; }
+
+
+/*TABLE: AFFORDABILITY TAB
+----------------------------------------------------------------*/
+.matrixTable {
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+.boldFont {
+  font-weight: bold;
+}
+
+.leftFont {
+  text-align: left;
+}
+
+
+/*######################################################################################################
+/* COLOR PALETTE FOR AFFORDABILITY Burden
+----------------------------------------------------------------*/
+.afford_low {
+  background-color: rgba(59,128,205,0.5);
+  color: rgb(59,128,205);
+}
+
+.afford_low-moderate {
+  background-color: rgba(54,189,205,0.5);
+  color: rgb(54,189,205);
+}
+
+
+/*######################################################################################################
+/* HELP ICON
+----------------------------------------------------------------*/
+.help-icon{
+  cursor: pointer;
+  height: 21px;
+  position: absolute;
+  width: 21px; 
+  z-index: 10; 
+}
+
+.close-help-icon{
+  cursor: pointer;
+  height: 30px;
+  position: absolute;
+  width: 30px; 
+  z-index: 10; 
+}
+.chart-holder-icon{
+  display: block;
+   height: 350px;
+   margin: auto;
+   width: 350px; 
+}
+
+.info-image{
+  background-color: white;
+  border: solid #02145c 4px;
+  box-shadow: 4px 4px rgba(28,43,88,0.2);
+  display: none;
+  margin: 0 auto;
+  position: absolute;
+  text-align: center;
+  z-index: 1000;
+}
+
+.orient-icon-image{
+  cursor: pointer;
+  position: relative;
+  width: 70px; 
+  z-index: 10; 
+}
+   
+/*Hide Divs
+----------------------------------------------------------------------*/
+.affordDivsToggle{
+    margin: 10px;
+    /*border: solid #02145c 4px;*/
+    display: none;
+}
+
+.show{
+  display: block;
+}
+
+
+
+
+/*Header
+----------------------------------------------------------------------*/
+.header {
+  color: #02145C;
+  font-family: Quicksand, sans-serif;
+  font-size: 18px;
+  margin-top: 5px;
+}
+
+.row-margin {
+  /*margin: 10px 5px 10px 10px;*/
+  margin: 10px 5px;
+}
+
+
+/* CONTAINERS & NAVITAGTION
+---------------------------------------------------------*/
+.container {
+  display: flex;
+  margin: 0 5px;
+  width: 100%;
+}
+
+
+/*Headers for chart titles and map layers
+---------------------------------------*/
+.chartTitles {
+  color: rgb(26, 131, 130);
+  font-family: Quicksand, sans-serif;
+  font-weight: bold;
+  margin: 10px auto;
+  padding-top: 10px;
+  text-align: center;
+}
+
+.chartTitlesHighlight {
+  background: #3f97a8;
+  color: rgb(222, 222, 222);
+  font-family: Quicksand, sans-serif;
+  font-weight: bold;
+  margin: 10px auto;
+  padding-top: 10px;
+  text-align: center;
+}
+
+.metadata{
+  font-size: 12px;
+  text-align: center; 
+}
+
+
+/* TAB NAVIGATION HEADERS
+---------------------------------------*/
+.nav-pills { 
+        border-bottom: 2px solid #3f97a8;
+        margin-top: 25px;
+        text-align: center; 
+      }
+      .nav-pills > li {
+        border-radius: 4px 4px 0 0;
+        display: inline-block;
+        float: none;
+        font-size: 22px; 
+        line-height: 1.2;
+        min-width: 20%;
+        zoom: 1;
+      }
+
+      .nav-pills > li >a{
+        /*color: #3d3d3d;*/
+        border:#3f97a8 2px solid;
+        color: #787878;
+        font-weight: bold;
+        text-decoration: none;
+      }
+    
+      .nav-pills > li.active > a,
+      .nav-pills > li.active > a:hover,
+      .nav-pills > li.active > a:focus{
+          background-color: #3f97a8;  
+          color: white;
+          font-weight: bold;
+          }
+
+
+
+/* MAP LEGEND 
+---------------------------------------------------------*/
+.map-layers-row{
+  background-color: rgb(240,240,240);
+  border: thin solid rgb(26,131,130);
+  margin: 1px 4px 0 0;
+  padding: 2px;
+  text-align: center; 
+}
+
+.btn {
+  background: rgb(200,200,200);
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  border-radius: 3px;
+  display: inline-block;
+  font-size: 13px;
+  font-weight: bold;
+  height: 40px;
+  line-height: 90%;
+  /*min-width: 100px;*/
+  margin-top: 2px;
+  padding-left: 3px;
+  padding-right: 3px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: normal; /*breaks text to wrap*/
+  width: 90px;
+}
+
+ .geocoder {
+    line-height: 1.2;
+    position: absolute;
+    left: 50%;
+    width: 50%;
+    z-index: 5;
+    }
+
+  .mapboxgl-ctrl-geocoder {
+    min-width: 90%;
+  }
+              
+
+.mapboxgl-popup{
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    max-width: 400px;
+}
+
+.map-overlay {
+          background-color: rgba(255,255,255,0.8);
+          bottom: 172px;
+          position: absolute;
+          right: 1px;
+          text-align: center;  /*centers button divs*/
+          /*vertical-align: middle; */
+          width: 130px;
+          z-index: 110;
+        }
+ 
+.legend {
+        background-color: rgba(255,255,255,0.8);
+        border-radius: 3px;
+        bottom: 21px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        font: 12px/20px 'Lato', Verdana, sans-serif;
+        padding: 5px;
+        position: absolute;
+        right: 1px;
+        text-align: left;
+        z-index: 100;
+      }
+  
+  .legend h4 { margin: 1px; }
+  .legend div span {
+    border-radius: 50%;
+    display: inline-block;
+    height: 10px;
+    margin-right: 5px;
+   }
+
+
+.infoMap {
+    background: rgba(255,255,255,0.8);
+    border: 2px solid black;
+    border-radius: 5px;
+    bottom: 30px; /*puts on bottom of div*/
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    color: #383939;
+    font-size: 12px;
+    left: 5px;
+    line-height: 1.2;
+    max-width: 360px;
+    padding: 4px 4px 2px 2px;
+    position: absolute;
+    text-align: left;
+    z-index: 10;
+}
+
+.infoHist {
+  background: rgba(255,255,255,0.8);
+  border: 2px solid black;
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  color: #383939;
+  /*display: none;*/
+  font-size: 12px;
+  right: 1px;
+  line-height: 1.2;
+  padding: 3px 3px 2px 2px;
+  position: absolute;
+  text-align: left;
+  top: 50px; /*puts on bottom of div*/
+  height: 180px;
+  width: 175px;
+  z-index: 2;
+}
+
+.clsbtn{
+  background-color: rgb(252, 157, 167);
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+
+/* SLIDER FOR VOLUME 
+---------------------------------------*/
+.slidercontainer { width: 75%;  }
+
+  /* The slider itself */
+.slider {
+  appearance: none;
+  background: rgba(200, 200, 200,1); /* Grey background */
+  border-radius: 5px;   
+  height: 18px; /* Specified height */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  outline: none; /* Remove outline */
+  transition: opacity .2s;
+  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+  width: 100%; /* Full-width */
+   -webkit-appearance: none;  /* Override default CSS styles */
+}
+
+/* Mouse-over effects */
+.slider:hover {  opacity: 1; /* Fully shown on mouse-over */}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;  /*Override default look */
+  appearance: none;
+  background: rgb(26, 131, 130); /*#0F799D; /* blue background */
+  border-radius: 50%;
+  cursor: pointer; /* Cursor on hover */
+  height: 24px; /* Slider handle height */
+  width: 24px; /* Set a specific slider handle width */
+}
+
+.slider::-moz-range-thumb {
+  background: rgb(26, 131, 130); /*#0F799D; /* Green background */
+  border-radius: 50%;
+  cursor: pointer; /* Cursor on hover */
+  height: 24px; /* Slider handle height */
+  width: 24px; /* Set a specific slider handle width */
+}
+
+#close{
+    display:block;
+    float:right;
+    width:30px;
+    height:29px;
+    background:url(http://www.htmlgoodies.com/img/registrationwelcome/close_icon.png) no-repeat center center;
+}
+
+/* ==========================================================================
+   Info Row
+   ========================================================================== */
+.info-row {
+  background-color: rgba(93,109,126,0.2); 
+  margin: 10px 0 20px 0;
+}
+
+.demo-row-title-bold {
+  background: #3f97a8;
+  color: white;
+  font-family: Quicksand, sans-serif; 
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 auto;
+  min-height: 50px;
+  text-align: center;
+  vertical-align: middle;
+  width: 98%;
+}
+
+.demo-row-title {
+  color: rgb(26,131,130);
+  font-family: Quicksand, sans-serif; 
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 auto;
+  vertical-align: middle;
+}
+
+
+/* ==========================================================================
+   Checkbox button
+   ========================================================================== */
+.regular-checkbox {
+      height: 22px;
+      width: 22px;
+  }
+          
+.regular-checkbox:after {
+  content: " ";
+  background-color: #3f97a8;
+  display: inline-block;
+  visibility: visible;
+}
+
+.regular-checkbox:checked:after {
+  content: "\2714";
+  box-shadow: 0px 2px 4px rgba(155, 155, 155, 0.15);
+  border-radius: 3px;
+  display: block;
+  text-align: center;
+  font-size: 16px;
+  color: white;
+}
+
+/* ==========================================================================
+   IRadio button
+   ========================================================================== */
+input[type="radio"] {
+  /* remove standard background appearance */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* create custom radiobutton appearance */
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  padding: 5px;
+  /* background-color only for content */
+  background-clip: content-box;
+  border: 2px solid #bbbbbb;
+  background-color: #e7e6e7;
+  border-radius: 50%;
+}
+
+/* appearance for checked radiobutton */
+input[type="radio"]:checked {
+  background-color: #3f97a8;
+}
+
+/* optional styles, I'm using this for centering radiobuttons */
+.flex {
+  display: flex;
+  align-items: center;
+}
+
+/* ==========================================================================
+   Helper classes
+   ========================================================================== */
+/*
+ * Hide visually and from screen readers
+ */
+.hidden {
+    display: none !important;
+}
+
+/*
+ * Hide only visually, but have it available for screen readers:
+ * https://snook.ca/archives/html_and_css/hiding-content-for-accessibility
+ *
+ * 1. For long content, line feeds are not interpreted as spaces and small width
+ *    causes content to wrap 1 word per line:
+ *    https://medium.com/@jessebeach/beware-smushed-off-screen-accessible-text-5952a4c2cbfe
+ */
+
+.visuallyhidden {
+    border: 0;
+    clip: rect(0 0 0 0);
+    -webkit-clip-path: inset(50%);
+    clip-path: inset(50%);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+    white-space: nowrap; /* 1 */
+}
+
+/*
+ * Extends the .visuallyhidden class to allow the element
+ * to be focusable when navigated to via the keyboard:
+ * https://www.drupal.org/node/897638
+ */
+
+.visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus {
+    clip: auto;
+    -webkit-clip-path: none;
+    clip-path: none;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    position: static;
+    width: auto;
+    white-space: inherit;
+}
+
+/*
+ * Hide visually and from screen readers, but maintain layout
+ */
+
+.invisible {
+    visibility: hidden;
+}
+
+/*
+ * Clearfix: contain floats
+ *
+ * For modern browsers
+ * 1. The space content is one way to avoid an Opera bug when the
+ *    `contenteditable` attribute is included anywhere else in the document.
+ *    Otherwise it causes space to appear at the top and bottom of elements
+ *    that receive the `clearfix` class.
+ * 2. The use of `table` rather than `block` is only necessary if using
+ *    `:before` to contain the top-margins of child elements.
+ */
+
+.clearfix:before,
+.clearfix:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+/* ==========================================================================
+   EXAMPLE Media Queries for Responsive Design.
+   These examples override the primary ('mobile first') styles.
+   Modify as content requires.
+   ========================================================================== */
+
+@media only screen and (min-width: 35em) {
+    /* Style adjustments for viewports that meet the condition */
+}
+
+@media print,
+       (-webkit-min-device-pixel-ratio: 1.25),
+       (min-resolution: 1.25dppx),
+       (min-resolution: 120dpi) {
+    /* Style adjustments for high resolution devices */
+}
+
+/* ==========================================================================
+   Print styles.
+   Inlined to avoid the additional HTTP request:
+   http://www.phpied.com/delay-loading-your-print-css/
+   ========================================================================== */
+
+@media print {
+    *,
+    *:before,
+    *:after {
+        background: transparent !important;
+        color: #000 !important; /* Black prints faster:
+                                   http://www.sanbeiji.com/archives/953 */
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    a,
+    a:visited {
+        text-decoration: underline;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+
+    abbr[title]:after {
+        content: " (" attr(title) ")";
+    }
+
+    /*
+     * Don't show links that are fragment identifiers,
+     * or use the `javascript:` pseudo protocol
+     */
+
+    a[href^="#"]:after,
+    a[href^="javascript:"]:after {
+        content: "";
+    }
+
+    pre {
+        white-space: pre-wrap !important;
+    }
+    pre,
+    blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    /*
+     * Printing Tables:
+     * http://css-discuss.incutio.com/wiki/Printing_Tables
+     */
+
+    thead {
+        display: table-header-group;
+    }
+
+    tr,
+    img {
+        page-break-inside: avoid;
+    }
+
+    p,
+    h2,
+    h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+}

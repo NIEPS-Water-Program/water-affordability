@@ -1,0 +1,1150 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Affordability</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" href="favicon.png">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lato&family=Quicksand:wght@400;600&display=swap"
+    rel="stylesheet">
+
+  <script type="text/javascript" src=".\content\jquery-3.5.0.min.js"></script>
+
+  <!-- <script src="https://code.jquery.com/jquery-3.5.0.min.js"
+    integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script> -->
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
+
+
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.css" rel="stylesheet" />
+  <script
+    src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+  <link rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"
+    type="text/css" />
+
+  <script src="https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js"></script>
+  <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+    <!-- create mapbox vector tiles-->
+  <link rel="stylesheet" href="css/main_content.css">
+</head>
+
+
+<body>
+  <div class="row header">
+    <div class="col-sm-9">
+      <h1 style="padding-left: 1em; color: #02145C">Water Affordability Dashboard</h1>
+      <hr style="background-color: #02145C; height: 4px;">
+    </div>
+    <div class="col-sm-3">
+      <a href="https://nicholasinstitute.duke.edu"> <img src="img/logo.jpg" style="width: 200px; height: 78px;"> </a>
+    </div>
+  </div>
+
+  <!-- #################################################################################################
+                        INTRODUCTION TEXT
+####################################################################################################################-->
+  <div class="row row-margin">
+    <p><i><strong>Disclaimer:</strong> All data and analysis are provisional. Please allow the dashboard to fully
+        load.</i></p>
+
+    <p>
+      Explore water services (drinking water, wastewater, and stormwater) to learn about the cost of services and
+      affordability for single family residential households. To learn about the data, the dashboard, and any frequently
+      asked questions, please visit: <a href="https://nicholasinstitute.duke.edu/water-affordability/affordability/about_dashboard.html">about the dashboard</a>.
+      <br><br>
+      <span style="color: rgb(252, 67, 57); font-size: 18px;">To get started</span>, select a utility by clicking on the
+      map or by using the drop down menu on the right (<span style="color: rgb(252, 67, 57);">Select a Utility</span>).
+      The map and drop-down menu can be filtered by selecting a state, utility size, or owner type. You can also type in
+      an address to find your utility in the search bar on the map.<br>
+      <span style="color: rgb(252, 67, 57); font-size: 18px;">Next, scroll down</span> to learn about the affordability
+      of water services for your utility how much water was used in a month (<span
+        style="color: rgb(252, 67, 57);">Select Monthly Water Usage</span>). You can click on other tabs to learn about
+      your rates, who lives in your utility, and how affordability changes for different amounts of water used.
+    </p>
+  </div>
+
+
+  <!--#######################################################################################################
+                                    Toggle Layers and Filter Header row
+    ######################################################################################################-->
+  <div class="row row-margin" id="main-map-row" style="position: relative;">
+    <!--add a help image when click on icon image below-->
+    <div class="row row-margin info-image" id="mapInfoDiv" style="width: 90%; top: 10px; left: 15px;">
+      <img class="close-help-icon" id="mapHelpClose" src="img/info_icon_close_info.png" style="right: 0px; top: 0px;">
+      <img src="img/maps.png" style="text-align: center; width: 90%; max-width: 800px;">
+    </div>
+    <!--add a help image when click on icon image below-->
+    <div class="row row-margin info-image" id="volInfoDiv" style="width: 50%; bottom: 25px; right: 26%;">
+      <img class="close-help-icon" id="volInfoDivClose" src="img/info_icon_close_info.png"
+        style="right: 0px; top: 0px;">
+      <img src="img/water_volume.png" style="width: 500px;">
+    </div>
+    <!--add a help image when click on icon image below-->
+    <div class="row row-margin info-image" id="utility2Bkgrp" style="width: 60%; top: 24px; left: 24px;">
+      <img class="close-help-icon" id="utility2BkgrpClose" src="img/info_icon_close_info.png"
+        style="right: 0px; top: 0px;">
+      <img src="img/map_utility_to_bkgroup.png" style="width: 100%;">
+    </div>
+
+
+    <div class="col-sm-9">
+      <div class="row" style= "margin: 15px 0 5px 0;">
+        <div class="col-sm-6" id="showMapText" style="color: rgb(252, 57, 67); cursor: pointer; padding-bottom: 5px;">
+          <u>Click here to learn about the map</u>
+        </div>
+        <div class="col-sm-5" style="text-align: right">Zoom in to see utilities</div>
+      </div>
+      <div id="map" style="height: 500px; border: thin solid rgb(26,131,130);">
+        <!--border: thin solid black;"-->
+        <div class="map-overlay" id="map-overlay">
+          <button class="btn" value="menuCounty" id="menuCounty"><strong>County</strong></button>
+          <button class="btn" value="menuMuni" id="menuMuni"><strong>Municipals</strong></button>
+        </div>
+        <div class="infoMap" id="map_hover_box">
+          <p><strong>Hover over utilities</strong></p>
+        </div>
+        <div class="infoHist" id="histChart">
+          <p><br><br><b>Hover over utilities to see how many block groups share the same burden level in a utility.</b>
+          </p>
+        </div>
+        <div class="legend" id="map-legend"></div>
+      </div>
+      <!--end map Div-->
+
+      <img src="img/down_arrow.png" style="left: 340px; bottom: -50px; position: absolute; width: 180px; z-index: 100;">
+    </div>
+    <!--end map column div-->
+
+    <div class="col-sm-3" id="main-filter-panel" style="padding: 0 2px;">
+      <!--help icon div-->
+      <img class="help-icon" id="mapHelp" src="img/info_icon.png" style="right: 1px; top: 0px;">
+
+      <div style="margin: 12px 0;"><h4><strong> Filter map and select a utility</strong></h4></div>
+      <form name="selectState">
+        <div style="margin: 0px;"><strong>Select State: </strong></div> 
+          <select style="width: 280px;" name="setState" id="setState" onchange="setStateThis(this);">
+          <option selected="selected" value="none"> All States </option>
+          <option value="ca"> California </option>
+          <option value="nc"> North Carolina </option>
+          <option value="or"> Oregon </option>
+          <option value="pa"> Pennsylvania </option>
+          <option value="tx"> Texas </option>
+        </select>
+      </form>
+      <br>
+      <form name="selectSize">
+        <div style="margin: 0px;"><strong>Select Utility Size: </strong></div>
+        <select style="width: 280px;" name="setSize" id="setSize" onchange="setSizeThis(this);">
+          <option selected="selected" value="none"> All Sizes </option>
+          <option value="Very Small"> Very Small (less than 500 persons) </option>
+          <option value="Small"> Small (500 to 3,300 persons) </option>
+          <option value="Medium"> Medium (3,301 to 10,000 persons) </option>
+          <option value="Medium-Large"> Medium-Large (10,001 to 75,000 persons) </option>
+          <option value="Large"> Large (75,001 to 500,000 persons) </option>
+          <option value="Very Large"> Very Large (more than 500,000 persons) </option>
+        </select>
+      </form>
+      <br>
+      <form name="selectOwner">
+        <div style="margin: 0px;"><strong>Select Owner Type: </strong></div>
+        <select style="width: 280px;" name="setOwner" id="setOwner" onchange="setOwnerThis(this);">
+          <option selected="selected" value="none"> All Owners </option>
+          <option value="Local"> Local Government </option>
+          <option value="Private"> Private </option>
+          <option value="Other"> Other (Federal, State, Native, or P3) </option>
+        </select>
+      </form><br>
+
+      <!--help icon div-->
+      <p id="volTitle" style="font-size: 16px; margin-left: -5px;"><b>Select Monthly Usage: <span
+            style="color: rgb(26, 131, 130); font-size: 13px;">4,000 gallons<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;(~535 cubic feet)</span></b></p>
+      <div class="slidecontainer" style="width: 280px;">
+        <!-- <img class="help-icon" id="volHelp" src="img/info_icon.png" style="left: 0px; top: 290px;"> -->
+        <input type="range" min="0" max="16000" value="4000" step="1000" class="slider" id="nvolSlider"
+          name="nvolSlider" onchange="updateNVol(this.value);">
+      </div> <!-- End slidecontainer div-->
+      <p id="volHelp"
+        style="font-size: 14px; color: rgb(252, 57, 67); cursor: pointer; padding-bottom: 5px; padding: 4px;">
+        <u>What volume should I use?</u>
+      </p>
+
+      <form name="selectSystem">
+        <div style="margin: 0px;"><strong>Select Utility: </strong></div>
+        <select style="width: 280px;" name="setSystem" id="setSystem" onchange="setSystemThis(this);">
+          <option selected="selected" value="none"> Select a Utility </option>
+        </select>
+      </form><br>
+
+      <div id="utilityResult" style="margin-top: 40px; margin-bottom: 20px;">
+        <h4> No utility provider has been found or selected.</h4>
+      </div>
+
+    </div>
+    <!--end filter panel-->
+  </div>
+  <!--end main-map-row div-->
+
+
+
+
+  <!--#######################################################################################################
+                          SET UP TEXT TO REMIND USERS WHAT THEY HAVE SELECTED
+    ######################################################################################################-->
+  <div class="row info-row">
+    <div class="col-sm-9" id="GuidePanel">
+      <h4 style="color: rgb(26,131,130)">Quick Guide to Affordability Metrics</h4>
+      <a target="_blank"
+        href="https://nicholasinstitute.duke.edu/water-affordability/affordability/affordability.html#af1-2"><img
+          class="help-icon" src="img/info_icon.png" style="left: 310px; top: 4px;"></a>
+      <p>
+        <strong>Minimum Wage (Labor) Hours</strong>: Number of hours worked at minimum wage to pay for water services.
+        <br>
+        <strong>Traditional</strong>: Percent of <u><span
+            title="If there were 100 households sorted by income, this is the income of the 50th household">median</span></u>
+        income within a service area used to pay for water services.
+        <br>
+        <strong>Household Burden</strong>: Percent of low-income (<u><span
+            title="If there were 100 households sorted by income, this is 20th most poor household">20th
+            percentile</span></u>) household income within a service area used to pay for water service.
+        <br>
+        <strong>Poverty Prevalence</strong>: Percent of households in a service area with an income lower than the 200%
+        of the federal poverty level.
+      </p>
+
+
+    </div>
+    <!--end GuidePanel Row-->
+    <div class="col-sm-3" id="selectionReminder">
+      <h4 id="countText" style="color: rgb(26,131,130);">You selected the following utilities: </h4>
+      <p id="stateText" style="line-height: 0.8; padding-top: 4px;">State: All States </p>
+      <p id="sizeText" style="line-height: 0.8">Utility Size: All Sizes</p>
+      <p id="ownerText" style="line-height: 0.8">Owner: All Owner Types</p>
+      <p id="volumeText" style="line-height: 0.8">Volume: 4,000 gallons</p>
+    </div>
+  </div>
+
+
+
+  <!--#######################################################################################################
+                                    TAB SET UP
+    ######################################################################################################-->
+  <div class="row">
+    <ul id="tabs" class="nav nav-pills" data-tabs="tabs">
+      <li class="active"><a href="#census" data-toggle="tab">Who lives in<br>my utility?</a></li>
+      <li><a href="#rates" data-toggle="tab">How much do water<br>services cost?</a></li>
+      <li><a href="#metrics" data-toggle="tab">How affordable are<br>water services?</a></li>
+      <li><a href="#summary" data-toggle="tab">How does affordability change<br>with water usage?</a></li>
+    </ul>
+  </div> <!-- end row div -->
+
+
+
+  <div id="my-tab-content" class="tab-content clearfix;">
+    <!--#######################################################################################################
+                                 
+                                   TAB PANEL SECTION
+                                 EXPLORE AFFORDABILITY
+
+    ######################################################################################################-->
+    <div class="tab-pane" id="metrics">
+      <div class="row info-row" style="margin-top: 0px">
+        <h3 style="margin-left: 40px;">What do you want to learn about affordability?</h3>
+        <div class="row" style="text-align: center;">
+          <div class="col-sm-1"></div>
+          <div class="col-sm-3">
+            <a href="#matrixTitle"><img class="orient-icon-image" id="showBurdenDiv"
+                src="img/orient_icons/burden.png"></a>
+            <p>Affordability Burden</p>
+          </div>
+          <div class="col-sm-4">
+            <a href="#closeIDWSDiv"><img class="orient-icon-image" id="showIDWSDiv" src="img/orient_icons/idws.png"></a>
+            <p>Income Dedicated to Water Service</p>
+          </div>
+          <div class="col-sm-3">
+            <img class="orient-icon-image" id="showCompareDiv" src="img/orient_icons/compare.png">
+            <p>Compare Metrics</p>
+          </div>
+          <div class="col-sm-1"></div>
+        </div>
+        <!--end row of icons-->
+      </div>
+
+      <!--#######################################################################################################
+                                 COMPARING AFFORDABILITY METRICS
+    ######################################################################################################-->
+      <div class="affordDivsToggle" id="compareMetricsDiv">
+        <h5 id="closeCompareMetricsDiv" style="text-align: right; color: rgb(252,67,57); cursor: pointer;"><b><u>Hide
+              Comparison Charts</u></b></h5>
+        <h4 class="chartTitles" id="allScoresTitle">Exploring affordability metrics</h4>
+        <p> Explore four affordability metrics below: Minimum Wage Hours, Traditional (median income), Household Burden
+          (20th percentile). The utility you selected above will be shown as a large blue circle on the boxplot. The
+          small gray dots are the metric scores for the utilities selected above.</p>
+
+
+        <!--charts for comparing metrics-->
+        <img class="help-icon" id="compareHelp" src="img/info_icon.png" style="right: 50px;">
+        <p><br><b><span color="rgb(26,131,130)">Household Affordability: </span></b>Minimum Wage Hours is concerned
+          about the ability of a household earning minimum wage to be able to pay for water services.</p>
+
+        <!--add a help image when click on icon image below-->
+        <div class="row info-image" id="compareMWHHelp" style="display: none; left: 25px; text-align: center;">
+          <img class="close-help-icon" id="compareMWHHelpClose" src="img/info_icon_close_info.png"
+            style="right: 0px; top: 0px;">
+          <img src="img/compare-mwh-expl.png" style="width: 95%; max-width: 800px; padding: 10px">
+        </div>
+
+        <div id="mwhScoresChart" style="margin: 0 auto; max-width: 800px;"> </div>
+        <!--end plot-->
+
+        <img class="help-icon" id="compareHelp2" src="img/info_icon.png" style="right: 50px;">
+        <p><br><b><span color="rgb(26,131,130)">Community Financial Capability: </span></b>These three metrics are
+          concerned about the ability of different populations within the utility to pay for water services. The
+          <b>Traditional</b> metric looks at the affordability for the representative median income household while the
+          <b>Household Burden</b> looks at the representative low-income household. The <b>Poverty Prevalence</b> metric
+          looks at the financial capacity of the community to pay for services by considering how many are below 200% of
+          teh federal poverty level.
+        </p>
+
+        <!--add a help image when click on icon image below-->
+        <div class="row info-image" id="compareCFCHelp" style="display: none; left: 25px; text-align: center;">
+          <img class="close-help-icon" id="compareCFCHelpClose" src="img/info_icon_close_info.png"
+            style="right: 0px; top: 0px;">
+          <img src="img/compare-cfc-expl.png" style="width: 95%; max-width: 800px; padding: 10px">
+        </div>
+
+        <div id="allScoresChart" style="margin: 0 auto; max-width: 800px;"> </div>
+        <!--end plot-->
+        <div id="ppiScoresChart" style="margin: 0 auto; max-width: 800px;"> </div>
+        <!--end plot-->
+      </div>
+
+
+      <!--#######################################################################################################
+                                 AFFORDABILITY BURDEN MATRIX
+    ######################################################################################################-->
+      <div class="affordDivsToggle" id="burdenDiv">
+        <h5 id="closeBurdenDiv" style="text-align: right; color: rgb(252,67,57); cursor: pointer;"><b><u>Hide
+              Affordability Burden Charts</u></b></h5>
+        <div class="row row-margin">
+
+          <h4 class="chartTitles" id="matrixTitle">Affordability Burden</h4>
+          <p> In 2019, a <a
+              href="https://www.awwa.org/Portals/0/AWWA/ETS/Resources/DevelopingNewFrameworkForAffordability.pdf?ver=2020-02-03-090519-813"
+              target="_blank">report</a> recommended combining two metrics to capture the financial burden of water
+            services on single family households in a utility (<span
+              title="HB: Percent of low-income household's annual income going towards water service bills."><u>Household
+                Burden</u></span>) and the prevalence of poverty in the community (<u><span
+                title="Percent of households with an income lower than 200% of federal poverty level">Poverty
+                Prevalence</span></u>). We used the recommended thresholds for Poverty Prevalence and adopted days of
+            labor for the HB. A day of labor is roughly equivalent to 4.6% of the income earned in a month.
+          </p>
+
+          <!--add a help image when click on icon image below-->
+          <img class="help-icon" id="matrixHelp" src="img/info_icon.png" style="right: 20px;">
+          <div class="row info-image" id="matrixHelpInfo" style="display: none; left: 15%; text-align: center;">
+            <img class="close-help-icon" id="matrixHelpClose" src="img/info_icon_close_info.png"
+              style="right: 0px; top: 0px;">
+            <img src="img/burden-chart-expl.png" style="width: 95%; max-width: 700px; padding: 10px;">
+          </div>
+
+          <br>
+          <form name="selectMatrixLegend" style="text-align: center;">
+            <span><b>Select Chart Legend: </b></span> &nbsp;
+            <select style="width: 280px;" name="setMatrixLegend" id="setMatrixLegend"
+              onchange="setMatrixLegendThis(this);">
+              <option selected="selected" value="none"> None </option>
+              <option value="state"> Show by State </option>
+              <option value="sizeCategory"> Show by Size Category </option>
+              <option value="owner_type"> Show by Owner Type </option>
+              <!-- <option value="severeColor"> Show by recent, severe SDWA violations </option> -->
+            </select>
+          </form>
+        </div>
+        <div class="row" id="matrixPlot" style="margin: 0 auto; max-width: 800px"> </div>
+        <!--end plot-->
+        <div id="hoverinfo" style="margin-left:80px;"></div>
+
+        <div class="row row-margin">
+          <!-- <hr style="background-color: #02145C; height: 3px; width: 100%; margin: 0 auto;"> -->
+          <div class="col-sm-6" style="padding: 10px;">
+            <!--add a help image when click on icon image below-->
+            <img class="help-icon" id="matrixTableHelp" src="img/info_icon.png" style="right: 20px;">
+            <div class="row info-image" id="matrixTableHelpDiv" style="display: none; text-align: center; width: 100%;">
+              <img class="close-help-icon" id="matrixTableHelpClose" src="img/info_icon_close_info.png"
+                style="right: 0px; top: 0px;">
+              <img src="img/burden-table-expl.png" style="width: 100%; max-width: 600px; padding: 10px;">
+            </div>
+
+            <h4 class="chartTitles">Summary of Utilities by Burden Level</h4>
+            <div id="matrixTable"> </div>
+            <!--end plot-->
+          </div>
+
+          <div class="col-sm-6">
+            <!--add a help image when click on icon image below-->
+            <img class="help-icon" id="matrixHBHelp" src="img/info_icon.png" style="right: 20px;">
+            <div class="row info-image" id="matrixHBHelpDiv" style="display: none; text-align: center; width: 100%;">
+              <img class="close-help-icon" id="matrixHBHelpClose" src="img/info_icon_close_info.png"
+                style="right: 0px; top: 0px;">
+              <img src="img/burden_hb_expl.png" style="width: 100%; max-width: 600px; padding: 10px;">
+            </div>
+
+            <h4 id="matrixVolHeader" class="chartTitles">How does burden change with water use?</h4>
+            <div id="matrixVolPlot" style="margin: 0 auto; max-width: 600px; text-align: center;">
+              <p>Select a utility to see the plot</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--end burden div-->
+
+
+      <!--#######################################################################################################
+                                 IDWS CURVE / BILL COST FUNCTION
+    ######################################################################################################-->
+      <!-- <hr style="background-color: #02145C; height: 3px;"> -->
+      <div class="affordDivsToggle" id="idwsDiv" style="display: block;">
+        <h5 id="closeIDWSDiv" style="text-align: right; color: rgb(252,67,57); cursor: pointer;"><b><u>Hide Income-Based
+              Charts</u></b></h5>
+        <img class="help-icon" id="idwsHelp" src="img/info_icon.png" style="right: 20px;">
+
+        <h4 class="chartTitles" id="costBillTitle">Income Dedicated to Water Services</h4>
+        <p id="idwsText"> The metric shows how many households share a similar financial burden based on the percent of
+          the households income used to pay for water services. In a single month, each 4.6% of income represents
+          roughly a day of labor. This metric allows utilities to see the breadth of affordability challenges given
+          estimated water bills and the distribution of household incomes in the service area.
+        </p>
+
+        <!--add a help image when click on icon image below-->
+        <div class="row info-image" id="idwsHelpInfo" style="display: none; text-align: center; left: 15px;">
+          <img class="close-help-icon" id="idwsHelpClose" src="img/info_icon_close_info.png"
+            style="right: 0px; top: 0px;">
+          <img src="img/idws-expl.png" style="width: 90%; max-width: 900px; padding: 10px;">
+        </div>
+        <br>
+        <div style="text-align: center;">
+          <input class="regular-checkbox" type="checkbox" id="switchDiv"
+            onclick="togglePlots(this.value)">&nbsp;&nbsp;&nbsp;<span
+            style="color: rgb(28,43,88); font-size: 16px; vertical-align:top;"><b> Select to see a table based on census
+              income brackets<br>(a utility must be selected)</b></span>
+          <br>
+        </div>
+        <div id="costBillChart" style="margin: 0 auto; max-width: 1000px;"> </div>
+        <!--end plot-->
+      </div>
+
+    </div><!-- end active tab pane for metrics-->
+
+
+
+    <!--#######################################################################################################
+
+                                   TAB PANEL SECTION
+                                 RATES AND COST BILL FUNCTIONS
+
+    ######################################################################################################-->
+    <div class="tab-pane" id="rates">
+      <div class="row info-row" style="margin-top: 0px;">
+        <h3 style="margin-left: 40px;">What do you want to learn about rates?</h3>
+        <div class="row" style="text-align: center;">
+          <div class="col-sm-1"></div>
+          <div class="col-sm-3">
+            <a href="#ratesTitle"> <img class="orient-icon-image" src="img/orient_icons/bill.png"></a>
+            <p><a href="#ratesTitle">Total Monthly Bill</a></p>
+          </div>
+          <div class="col-sm-4">
+            <a href="#ratesMetaTitle"> <img class="orient-icon-image" src="img/orient_icons/hyperlink.png"></a>
+            <p><a href="#ratesMetaTitle">Find Utility Rate Websites</a></p>
+          </div>
+          <!--  <div class= "col-sm-2">
+          <a href="#ratesCompTitle"> <img class="orient-icon-image" src="img/orient_icons/cost_gal.png"></a>
+          <p><a href="#ratesCompTitle">Cost of Water Used</a></p>
+        </div> -->
+          <div class="col-sm-3">
+            <a href="#ratesCompTitle"> <img class="orient-icon-image" src="img/orient_icons/cost_boxplot.png"></a>
+            <p><a href="#ratesCompTitle">Explore Rate Structures</a></p>
+          </div>
+          <div class="col-sm-1"></div>
+        </div>
+        <!--end row div of icons-->
+      </div>
+
+
+      <!--#######################################################################################################
+                                 SEE MONTHLY RATES FOR SELECTED UTILITY
+    ######################################################################################################-->
+      <div class="row row-margin" style="max-width: 1200px; padding-left: 50px; padding-right: 50px;">
+        <h4 class="chartTitles" id="ratesTitle">Monthly Bill for Water Services</h4>
+        <p> The monthly water services bill includes how much a household would pay each month for drinking water,
+          wastewater, and stormwater services for the volume of water selected above. To learn more about how we
+          estimate the monthly bill visit our <a href="https://nicholasinstitute.duke.edu/water-affordability/affordability/about_dashboard.html#methods">methods page</a> and scroll down to "How do we estimate monthly water bills?".
+          </p>
+
+        <div class="row" id="monthBillChart" style="max-width: 600px; margin: 0 auto;"></div>
+
+        <div class="row" id="ratesMetadata">
+          <h4 class="chartTitles" id="ratesMetaTitle">Utilities providing services to estimate monthly bills</h4>
+          <p style="text-align: center;">Rates may differ from what is currently on website and/or the website link no
+            longer exists.<br>
+            Homeowners refers to on-lot sites or private septic tanks. This bill is estimated at ~$33 per month.
+            <br>
+            There may be multiple wastewater or stormwater utilities providing services within a drinking water utility
+            service area.
+          </p>
+          <div id="ratesMetaTable" class="table-wrapper-scroll-y my-custom-scrollbar"></div>
+        </div>
+        <!--end table row-->
+
+
+        <!--#######################################################################################################
+                                SEE RATE COMPONENTS AND HOW COMMODITY CHARGES CHANGE
+    ######################################################################################################-->
+        <div class="row" style=" margin-top: 20px;">
+          <h4 class="chartTitles" id="ratesCompTitle">Explore Rate Structures for Water and Wastewater</h4>
+          <p> Rate structures can vary considerably between utilities. Water bills typically include some or all of the
+            following components: a fixed charge, a charge based on how much water is used, and surcharges. These
+            components are added together to estimate a monthly bill based on the volume of water selected above. Select
+            whether you would like to compare bill components for drinking water or wastewater services. The left chart
+            provides how much each thousand gallons of water costs (usage charge only). The right chart shows how much
+            of the monthly bill comes from fixed charges, usage charges, and surcharges. </p>
+        </div>
+        <div class="row" style="margin-top: 35px; text-align: center; margin-bottom: 20px;">
+          <div class="row" style="margin: auto 10px; text-align: center; background-color: #3f97a8;">
+            <h4 style="color: white"><strong>What type of bill do you want to explore?</strong></h4>
+          </div>
+
+          <div class="row row-margin">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-3" style="height: 40px;">
+              <input style="position: absolute; left: 30%;" type="radio" name="waterList"
+                onclick="createBoxTrace(this.value)" value="water" checked>
+              <label for="radio1" style="position: absolute; top: 4px; left: 40%"> Drinking Water</label>
+            </div>
+            <div class="col-sm-3" style="border: red blue 1px">
+              <input style="position: absolute; left: 30%;" type="radio" name="waterList"
+                onclick="createBoxTrace(this.value)" value="sewer">
+              <label for="radio1" style="position: absolute; top: 4px; left: 40%"> Wastewater</label>
+            </div>
+            <div class="col-sm-3">
+              <!--help icon div-->
+              <img class="help-icon" id="ratesHelp" src="img/info_icon.png" style="left: 0px; top: 1px;">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-6" id="commodityChart"></div><!-- end commodity charge comparison-->
+          <div class="col-sm-6" id="boxRateChart"> </div>
+        </div>
+        <!--end row-->
+        <!--add a help image when click on icon image below-->
+        <div class="row row-margin info-image" id="ratesHelpDiv" style="text-align: center; position: relative;">
+          <img class="close-help-icon" id="ratesHelpClose" src="img/info_icon_close_info.png"
+            style="right: 0px; top: 0px;">
+          <img src="img/rates-help-info.png" style="text-align: center; width: 90%; max-width: 700px;">
+        </div>
+
+
+
+
+      </div>
+      <!--end row holding columns-->
+    </div><!-- end active tab pane for rates-->
+
+
+    <script>
+      //when click on icons, show and hide divs... move to scripts below once done.
+      jQuery(document).ready(function () {
+        //help divs and icons ----------------------------------------------------------------------
+        jQuery('#mapHelp').on('click', function (event) { jQuery('#mapInfoDiv').toggle('show'); });
+        jQuery('#volHelp').on('click', function (event) { jQuery('#volInfoDiv').toggle('show'); });
+
+        //explore affordability tab
+        jQuery('#compareHelp').on('click', function (event) { jQuery('#compareMWHHelp').toggle('show'); });
+        jQuery('#compareHelp2').on('click', function (event) { jQuery('#compareCFCHelp').toggle('show'); });
+        jQuery('#matrixHelp').on('click', function (event) { jQuery('#matrixHelpInfo').toggle('show'); });
+        jQuery('#matrixTableHelp').on('click', function (event) { jQuery('#matrixTableHelpDiv').toggle('show'); });
+        jQuery('#matrixHBHelp').on('click', function (event) { jQuery('#matrixHBHelpDiv').toggle('show'); });
+        jQuery('#idwsHelp').on('click', function (event) { jQuery('#idwsHelpInfo').toggle('show'); });
+
+        //explore rates tab
+        jQuery('#ratesHelp').on('click', function (event) { $('#ratesHelpDiv').toggle('show'); });
+
+
+        //close buttons
+        $("#utility2BkgrpClose").on("click", function () { $("#utility2Bkgrp").css("display", "none"); });
+        $("#mapHelpClose").on("click", function () { $("#mapInfoDiv").css("display", "none"); });
+        $("#volInfoDivClose").on("click", function () { $("#volInfoDiv").css("display", "none"); });
+        $("#ratesHelpClose").on("click", function () { $("#ratesHelpDiv").css("display", "none"); });
+
+
+        //show divs on affordability page-----------------------------------------
+        jQuery('#showCompareDiv').on('click', function (event) { jQuery('#compareMetricsDiv').toggle('show'); });
+        $("#compareMWHHelpClose").on("click", function () { $("#compareMWHHelp").css("display", "none"); });
+        $("#compareCFCHelpClose").on("click", function () { $("#compareCFCHelp").css("display", "none"); });
+        $("#closeCompareMetricsDiv").on("click", function () { $("#compareMetricsDiv").css("display", "none"); });
+
+        jQuery('#showBurdenDiv').on('click', function (event) { jQuery('#burdenDiv').toggle('show'); });
+        $("#matrixHelpClose").on("click", function () { $("#matrixHelpInfo").css("display", "none"); });
+        $("#matrixTableHelpClose").on("click", function () { $("#matrixTableHelpDiv").css("display", "none"); });
+        $("#matrixHBHelpClose").on("click", function () { $("#matrixHBHelpDiv").css("display", "none"); });
+        $("#closeBurdenDiv").on("click", function () { $("#burdenDiv").css("display", "none"); });
+
+        jQuery('#showIDWSDiv').on('click', function (event) { jQuery('#idwsDiv').toggle('show'); });
+        $("#idwsHelpClose").on("click", function () { $("#idwsHelpInfo").css("display", "none"); });
+        $("#closeIDWSDiv").on("click", function () { $("#idwsDiv").css("display", "none"); });
+
+      });
+
+    </script>
+
+
+
+    <!--#######################################################################################################
+                                   TAB PANEL SECTION
+                                 CENSUS FUNCTIONS
+    ######################################################################################################-->
+    <div class="tab-pane  active" id="census">
+      <div class="row row-margin">
+        <h4 class="chartTitles" id="censusTitle">Social and economic characteristics in my service area</h4>
+        <p> The gray lines in each chart show the utilities selected from the options to the right of the map (state,
+          size, and ownership). If a utility is selected in the map or drop-down menu, the utility will be highlighted
+          in the plot and the chart title will change to describe the selected utility. You can explore how population
+          and unemployment have changed over time, the composition of age, race, and income within the service area, and
+          the age of housing infrastructure. These community characteristics provide some context of who lives in the
+          service area and their potential to afford services.
+        </p>
+      </div>
+      <!--panel heading primary-->
+      <div class="row row-margin" style="margin-top: 10px; vertical-align: middle;">
+        <div class="row chartTitles" id="tooSmall" style="color: rgb(252,57,67); text-align: center; font-size: 22px;">
+        </div>
+        <div class="col-sm-4">
+          <p class="demo-row-title" id="popTimeTitle">Is population growing, shrinking, or stable?</p>
+        </div>
+        <div class="col-sm-4">
+          <p class="demo-row-title" id="ageTitle">What percentage of customers are within working age?</p>
+        </div>
+        <div class="col-sm-4">
+          <p class="demo-row-title" id="raceTitle">What is the racial and ethnic composition?</p>
+        </div>
+      </div>
+
+      <div class="row row-margin" style="margin-top: 0px;">
+        <div class="col-sm-4" id="popTimeChart"></div> <!-- border: 1px solid black;-->
+        <div class="col-sm-4" id="ageChart"></div>
+        <div class="col-sm-4" id="raceChart"></div> <!-- border: 1px solid black;-->
+      </div>
+
+
+      <div class="row row-margin" style="margin-top: 40px;">
+        <div class="col-sm-4">
+          <p class="demo-row-title" id="incomeTitle">What is the household income distribution?</p>
+        </div>
+        <div class="col-sm-4">
+          <p class="demo-row-title" id="annualBLSTitle">How has unemployment changed over time?</p>
+        </div>
+        <div class="col-sm-4">
+          <p class="demo-row-title" id="monthBLSTitle">How has COVID-19 affected unemployment?</p>
+        </div>
+      </div>
+
+      <div class="row row-margin">
+        <div class="col-sm-4" id="incomeChart"></div>
+        <div class="col-sm-4" id="annualBLSChart"></div> <!-- border: 1px solid black;-->
+        <div class="col-sm-4" id="monthBLSChart"></div>
+      </div>
+
+      <div class="row row-margin" style="margin-top: 40px;">
+        <div class="col-sm-4">
+          <p class="demo-row-title" id="buildTitle">When were houses built (infrastructure age)?</p>
+        </div>
+        <div class="col-sm-4"></div>
+        <div class="col-sm-4"></div>
+      </div>
+      <div class="row row-margin">
+        <div class="col-sm-4" id="buildChart"></div>
+        <div class="col-sm-4"> </div>
+        <!--end plot-->
+        <div class="col-sm-4"></div>
+      </div>
+    </div> <!-- end censusTab row-->
+
+
+    <!--#######################################################################################################
+                                   TAB PANEL SECTION
+                                   SUMMARY FUNCTIONS
+    ######################################################################################################-->
+    <div class="tab-pane" id="summary">
+      <div class="row info-row" style="margin-top: 0px;">
+        <h3 style="margin-left: 40px;">Summary of affordability metrics by volume of water used and currently
+          recommended guidelines</h3>
+        <div class="row" style="text-align: center;">
+          <div class="col-sm-1"></div>
+          <div class="col-sm-2">
+            <a href="#burdenSummaryTitle"> <img class="orient-icon-image" src="img/orient_icons/burden.png"></a>
+            <p><a href="#burdenSummaryTitle">Affordability Burden</a></p>
+          </div>
+          <div class="col-sm-2">
+            <a href="#summaryMWHTitle"> <img class="orient-icon-image" src="img/orient_icons/min_wage.png"></a>
+            <p><a href="#summaryMWHTitle">Minimum Wage Hours</a></p>
+          </div>
+          <div class="col-sm-2">
+            <a href="#summaryPPTitle"> <img class="orient-icon-image" src="img/orient_icons/poverty.png"></a>
+            <p><a href="#summaryPPTitle">Poverty Prevalence</a></p>
+          </div>
+          <div class="col-sm-2">
+            <a href="#summaryMHITitle"> <img class="orient-icon-image" src="img/orient_icons/traditional.png"></a>
+            <p><a href="#summaryMHITitle">Median Income Burden</a></p>
+          </div>
+          <div class="col-sm-2">
+            <a href="#summaryHBTitle"> <img class="orient-icon-image" src="img/orient_icons/hbi.png"></a>
+            <p><a href="#summaryHBTitle">Low-Income (HB) Burden</a></p>
+          </div>
+          <div class="col-sm-1"></div>
+        </div>
+      </div>
+
+      <div class="row row-margin">
+        <div class="col-sm-6" style="margin: auto;">
+          <h4 class="chartTitles">Why is water volume important?</h4>
+          <p>The volume of "reasonable" water use for "essential" purposes for a single person is assumed to be 50
+            gallons per day (1,500 gallons per month). However, more water is often used in the U.S. The amount of water
+            "reasonable" for "essential" purposes depends on how many people live in a household. This chart shows how
+            much water use can vary per household based on the number of people and volume of water each person uses.
+          </p>
+          <div style="margin: 0px; text-align: center"><img src="img/water_volume.png" style="height: 300px;"></div>
+        </div> <!-- create space on the left-->
+        <div class="col-sm-6">
+          <!-- main div-->
+          <div class="row" id="burdenSummaryTitle">
+            <h4 class="chartTitles">Percent of utilities by burden level</h4>
+            <p> This chart summarizes the percent of utilities by burden level given selections in the map above by
+              combining HB and PP indicators. Visit our <a href="https://nicholasinstitute.duke.edu/water-affordability/affordability/about_dashboard.html#metrics" target="_blank">about affordability metrics tab</a> for more details.</p>
+          </div>
+          <div class="row" id="summaryBurdenChart" style="margin: 0 auto; max-width: 700px;"></div>
+        </div>
+      </div>
+
+      <div class="row row-margin" style="margin-top: 20px;">
+        <div class="row">
+          <div class="col-sm-6">
+            <h4 class="chartTitles" id="summaryMWHTitle">Percent of utilities by days worked at minimum wage</h4>
+            <p> This chart summarizes the percent of utilities by the number of hours (assuming 8 hour work day) a
+              minimum wage worker must spend to pay water bills each month. </p>
+          </div>
+
+          <div class="col-sm-6">
+            <h4 class="chartTitles" id="summaryPPTitle">Percent of utilities by poverty level</h4>
+            <p> This chart summarizes the percent of utilities by the proportion of their community living below 200% of
+              the federal poverty level (nothing to do with rates and doesn't change based on usage).</p>
+          </div>
+        </div><!-- end title row-->
+
+        <div class="row">
+          <div class="col-sm-6">
+            <div id="summaryWageChart"></div>
+          </div>
+          <div class="col-sm-6">
+            <div id="summaryPPIChart" style="margin-left: 5px;"></div>
+          </div>
+        </div>
+
+        <div class="row row-margin" style="margin-top: 20px;">
+          <div class="row">
+            <div class="col-sm-6">
+              <h4 class="chartTitles" id="summaryMHITitle">Median-income household revenue going to water services</h4>
+              <p> This chart summarizes percent of a median household's (50th percent) income that is spent on water
+                services. We provide this information in terms of the number of work days spent to pay for services with
+                one work day representing 4.6% of monthly income.</p>
+            </div>
+            <div class="col-sm-6">
+              <h4 class="chartTitles" id="summaryHBTitle">Low-income household revenue going to water services</h4>
+              <p> This chart summarizes percent of a low-income household's (20th percent) revenues that are spent on
+                water services. We provide this information in terms of the number of work days spent to pay for
+                services with one work day representing 4.6% of monthly income.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <div id="summaryMHIChart"></div>
+            </div>
+            <div class="col-sm-6">
+              <div id="summaryHBIChart"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!--end tab container-->
+    </div>
+    <!--end full tab container-->
+
+
+
+     <!--#######################################################################################################
+                                     ADD FOOTER
+      ######################################################################################################-->
+    <div class="row info-row" style="margin-top: 40px; padding-bottom:20px;">
+      <h4 class="chartTitles" style="margin: 30px 50px 20px 50px; text-align: left;">Data and Code</h4>
+      <p style="margin-left: 50px; margin-right: 50px;">All data and rcode are provided at the <a href="" target="_blank">Nicholas Institute's Water Affordability Github repository</a> under the Creative Commons Attribution 4.0 License. 
+        <!-- <span style="background-color: yellow">STILL NOT SURE: The code to create the dashboard is provided under the MIT License.</span> -->
+        <br>
+      Add link to paper.</span></p>
+     
+      <div class="col-sm-6" style="margin-top: 0px; text-align: right; border-right: 2px solid rgb(26,131,130);">
+        <p style="padding-right: 3px;">
+          <br><strong>Analysis and Dashboard developed by</strong><br><br>
+          <strong>Improved Map Performance provided by</strong>
+          <br><br>
+          <strong>Funding provided by</strong><br><br>
+        </p>
+      </div>
+      <div class="col-sm-6" id="internal_footer" style="margin-top: 0px; text-align: left;">
+        <p style="padding-left: 5px;"> <br>
+          Lauren Patterson at the Nicholas Institute, Duke University
+          <br><br>
+          <a href="https://dontpaniclabs.com/" target="_blank">Don't Panic Labs</a>
+          <br><br>
+          <a href="https://www.thespringpoint.com/" target="_blank">Spring Point Partners</a>
+        </p>
+      </div>
+    </div>
+    <!--internal footer div-->
+
+
+
+
+
+    <!--#######################################################################################################
+                                    DECLARE GLOBAL VARIABLES
+    ######################################################################################################-->
+    <script>
+      // DECLARE GLOBAL VARIABLES
+      var gisSystemData; var ratesCSV;
+      var csvServiceScores;
+      var selectVolume = 4000;
+      var selectState = "none";
+      var selectSystem = "none"; var myUtility = "none";
+      var selectSize = "none";
+      var selectOwner = "none";
+      var selectBurden;
+      var selectPlotType = "plot";  //options are plot or table
+      var drawLegend = "burdenLegend";
+      var zoomThreshold = 4.5;
+      var matrixLegend = "none";
+      var filterData;
+      var gisCensusData;
+      var target = "#census";
+      var selWaterType = "water";
+      var currentYear = 2019;
+      var day1 = 4.6; //1 day of labor = 4.6% of income
+      //set configuration options for plotly
+      var config = {
+        displayModeBar: true,
+        modeBarButtonsToRemove: ['lasso2d', 'select2d', 'resetscale2d', 'toggleSpikelines', 'hoverCompareCartesian', 'hoverClosestCartesian']
+      };
+
+      var configNoAutoDisplay = {
+        modeBarButtonsToRemove: ['lasso2d', 'select2d', 'resetscale2d', 'toggleSpikelines', 'hoverCompareCartesian', 'hoverClosestCartesian']
+      };
+      // var clickCount = 0; //set up click count to do popup on first map click.
+
+      var afford_low = "rgb(59,128,205)";
+      var afford_low_moderate = "rgb(54,189,205)";
+      var afford_moderate_high = "rgb(205,133,54)";
+      var afford_high = "rgb(234,49,25)";
+      var afford_very_high = "rgb(113,38,28)";
+
+
+      //Useful function to add commas to thousand separators
+      function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+
+      // script to collapse and expand divs
+      var coll = document.getElementById("showMapText");
+      coll.addEventListener("click", function () {
+        this.classList.toggle("active");
+        var content = document.getElementById("utility2Bkgrp");
+        if (content.style.display === "block") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "block";
+        }
+      });
+
+
+      // MAP VARIABLES //
+      mapboxgl.accessToken = 'PUT YOUR TOKEN HERE BETWEEN QUOTES';
+      var map = new mapboxgl.Map({
+        container: 'map', //specify container ID
+        style: 'mapbox://styles/mapbox/light-v10', //specify map style
+        center: [-93, 38], //specify the start position; long, lat
+        zoom: 3
+      });
+      //map.fitBounds([-120, 25, -68, 48]);
+      map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+
+      var geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        placeholder: "Enter address",
+        zoom: 11
+      });
+      map.addControl(geocoder);
+      //document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
+
+      //##############################################################################################
+      //                            INITIAL MAP LOAD
+      //##############################################################################################
+      //LOAD MAPS----------------------------------------------------------------------------
+      //have to add sources on load
+      map.on('load', function () {
+        // Add vector tile source from Mapbox GL JS
+        map.addSource('ws-affordability', {
+          type: 'vector',
+          url: 'mapbox://YOUR TILESET FOR STATES, COUNTIES, and MUNIS'
+        });
+
+        // Add layers from vector source
+        map.addLayer({
+          'id': 'states',
+          'type': 'fill',
+          'source': 'ws-affordability',
+          'source-layer': 'state',
+          'maxzoom': zoomThreshold,
+          'paint': {
+            'fill-color': [
+              'match',
+              ['get', 'data'],
+              'no', 'white',
+              'yes', 'rgb(28,43,88)',
+              'muni', 'rgb(120, 167, 221)',
+              '#ccc'
+            ],
+            'fill-outline-color': 'black',
+            'fill-opacity': 0.6,
+          }
+        });
+
+        map.addLayer({
+          'id': 'county',
+          'type': 'line',
+          'source': 'ws-affordability',
+          'source-layer': 'county',
+          'layout': {
+            'visibility': 'none',
+          },
+          'paint': { 'line-color': 'darkgray', 'line-width': 4 }
+        });
+
+        map.addLayer({
+          'id': "county_name",
+          'type': "symbol",
+          'source': "ws-affordability",
+          'source-layer': "county",
+          'layout': {
+            "visibility": 'none',
+            "text-field": "{name}",
+            'symbol-placement': "point"
+          },
+          'paint': {
+            "text-color": "darkgray",
+            "text-halo-color": "#fff",
+            "text-halo-width": 4,
+            "text-halo-blur": 0,
+          }
+        });
+
+        map.addLayer({
+          'id': 'muni',
+          'type': 'fill',
+          'source': 'ws-affordability',
+          'source-layer': 'muni',
+          'layout': { 'visibility': 'none', },
+          'paint': {
+            'fill-color': 'rgb(0,0,0)',
+            'fill-outline-color': 'white',
+            'fill-opacity': 0.45
+          }
+        });
+
+        map.addLayer({
+          'id': "muni_name",
+          'type': "symbol",
+          'source': "ws-affordability",
+          'source-layer': "muni_centers",
+          'layout': {
+            "visibility": 'none',
+            "text-field": "{city_name}",
+            'symbol-placement': "point"
+          },
+          'paint': {
+            "text-color": "rgb(0,0,100)",
+            "text-halo-color": "#fff",
+            "text-halo-width": 2, "text-halo-blur": 0,
+          }
+        }); 
+
+  //mapbox url varies depending on volume selected
+  if (selectVolume <= 4000){
+    select_url = 'mapbox://YOUR MAPBOX TILESET FOR UTILITIES...WE BROKE INTO GROUPS: 0 TO 4000 GALLONS';
+  }
+
+  if (selectVolume >= 5000 & selectVolume <= 8000){
+    select_url = 'mapbox://YOUR MAPBOX TILESET FOR UTILITIES...WE BROKE INTO GROUPS: 5000 TO 8000 GALLONS';
+  }
+
+  if (selectVolume >= 9000 & selectVolume <= 12000){
+    select_url = 'mapbox://YOUR MAPBOX TILESET FOR UTILITIES...WE BROKE INTO GROUPS: 9000 TO 12000 GALLONS';
+  }
+
+  if (selectVolume >= 13000 & selectVolume <= 16000){
+    select_url = 'mapbox://YOUR MAPBOX TILESET FOR UTILITIES...WE BROKE INTO GROUPS: 13000 TO 16000 GALLONS';
+  }
+
+  //load map layer based on volume selected
+    map.addSource('utilities', {
+         type: 'vector',
+         url: select_url
+    });
+  
+  //--------------------------------------------------------------------------------------
+//add legend to map
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  burdenLegend = document.querySelector(".legend");
+  //on load
+  burdenLegend.innerHTML = "<h4>Data Available</h4>";
+  var layers = ["Yes", "Partial", "No"];
+  var colors = ["rgb(28,43,88)", "rgb(120,167,221)", "white"];
+
+  for (i = 0; i < layers.length; i++) {
+    var layer = layers[i]; var color = colors[i];
+    var item = document.createElement('div');
+    var key = document.createElement('span');
+    key.style.width = "10px"; //change default span width
+    key.className = 'legend-key';
+    key.style.backgroundColor = color;
+
+    var value = document.createElement('span');
+    value.style.width = "100px"; //change default span width
+    value.innerHTML = layer;
+    item.appendChild(key);
+    item.appendChild(value);
+    burdenLegend.appendChild(item);
+    burdenLegend.style.display = 'block';
+  }
+
+  // Make map legend dynamic as zoom in and out
+   map.on('zoom', function () {
+    if (map.getZoom() >= zoomThreshold) {
+      burdenLegend.innerHTML = "<h4>Burden Level</h4>";
+      var layers = ["Very High", "High", "Moderate-High", "Low-Moderate", "Low", "Unknown"];
+      var colors = ["#71261c", "#ea3119", "#cd8536", "#36bdcd", "#3b80cd", "darkgrey"];
+
+      for (i = 0; i < layers.length; i++) {
+        var layer = layers[i]; var color = colors[i];
+        var item = document.createElement('div');
+        var key = document.createElement('span');
+        key.style.width = "10px"; //change default span width
+        key.className = 'legend-key';
+        key.style.backgroundColor = color;
+
+        var value = document.createElement('span');
+        value.style.width = "100px"; //change default span width
+        value.innerHTML = layer;
+        item.appendChild(key);
+        item.appendChild(value);
+        burdenLegend.appendChild(item);
+        burdenLegend.style.display = 'block';
+      }
+    }
+    if (map.getZoom() < zoomThreshold) {    //end draw utility burden legend
+      burdenLegend.innerHTML = "<h4>Data Available</h4>";
+      var layers = ["Yes", "Partial", "No"];
+      var colors = ["rgb(28,43,88)", "rgb(120,167,221)", "white"];
+
+      for (i = 0; i < layers.length; i++) {
+        var layer = layers[i]; var color = colors[i];
+        var item = document.createElement('div');
+        var key = document.createElement('span');
+        key.style.width = "10px"; //change default span width
+        key.className = 'legend-key';
+        key.style.backgroundColor = color;
+
+        var value = document.createElement('span');
+        value.style.width = "100px"; //change default span width
+        value.innerHTML = layer;
+        item.appendChild(key);
+        item.appendChild(value);
+        burdenLegend.appendChild(item);
+        burdenLegend.style.display = 'block';
+      }
+    }
+  }); //end zoom load legend function
+}); // end map on load function
+
+      //resizes panels
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        target = $(e.target).attr("href");
+
+        if (target === "#metrics") {
+          createMatrix(selectSystem, matrixLegend);
+          allScores(selectSystem);
+          plotCostBill(selectSystem, selectVolume, selectPlotType);
+        }
+
+        if (target === "#rates") {
+          plotRates(selectSystem, selectVolume, selWaterType);
+        }
+
+        if (target === "#census") {
+          plotDemographics(selectSystem);
+        }
+        if (target === "#summary") {
+          createSummary();
+        }
+
+      }); //end resize panel functions
+    </script>
+
+    <script type="text/javascript" src="scripts/global_variables.js"></script>
+    <script type="text/javascript" src="scripts/drawMap.js"></script>
+    <script type="text/javascript" src="scripts/mapHoverClickFunctions.js"></script>
+    <script type="text/javascript" src="scripts/selectFunctions.js"></script>
+    <script type="text/javascript" src="scripts/affordBurden.js"></script>
+    <script type="text/javascript" src="scripts/compareScores.js"></script>
+    <script type="text/javascript" src="scripts/ratesFunction.js"></script>
+    <script type="text/javascript" src="scripts/idwsFunction.js"></script>
+    <script type="text/javascript" src="scripts/demographicFunctions.js"></script>
+    <script type="text/javascript" src="scripts/summaryVolFunctions.js"></script>
+
+</body>
+
+</html>
