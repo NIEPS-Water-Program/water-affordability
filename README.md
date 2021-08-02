@@ -2,7 +2,7 @@
 
 Dashboard (desktop): https://nicholasinstitute.duke.edu/water-affordability/water-affordability-dashboard
 
-Don't Panic Labs assisted in developing the map interface: https://dontpaniclabs.com/
+Don't Panic Labs assisted in creating mapbox tiles: https://dontpaniclabs.com/
 
 Information about Project: https://nicholasinstitute.duke.edu/water-affordability/
 
