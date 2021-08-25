@@ -5,7 +5,6 @@ The libraries and files here work for certain versions of R and libraries. As R 
 R Version: 4.0
 
 
-
 - geojsonio package version 0.9.2
 - httr version 1.4.2
 - jsonlite version 1.7.2
@@ -22,4 +21,9 @@ R Version: 4.0
 - stringr version 1.4.0
 - tidycensus version 0.9.9.5
 - tidyverse version 1.3.0
+
+
+### Additional Notes
+
+Mac users may need to change the file paths to `/` rather than `\\`.
 
