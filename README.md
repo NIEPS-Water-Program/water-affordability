@@ -24,7 +24,7 @@ Current release version and doi: <a href="https://zenodo.org/badge/latestdoi/385
 ## Terms of Use
 1. Files in the data and rcode folder are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0: https://creativecommons.org/licenses/by/4.0/) by Duke University on behalf of the Nicholas Institute for Environmental Solutions.
 2. Files in the www folder are licensed under MIT license.
-3. Attribute the data, code, and dashboard as "Patterson, Lauren, Martin Doyle, Aislinn McLaughlin, and Sophia Bryson. 2021. Water Affordability Data Repository. Nicholas Institute for Environmental Policy Solutions at Duke University. https://github.com/NIEPS-Water-Program/water-affordability" or "NIEPS Water Affordability Data" for short, and the url: https://github.com/NIEPS-Water-Program/water-affordability. You may include the current release version with it's associated doi: 10.5281/zenodo.5156654.
+3. Attribute the data, code, and dashboard as "Patterson, Lauren, Martin Doyle, Aislinn McLaughlin, and Sophia Bryson. 2021. Water Affordability Data Repository. Nicholas Institute for Environmental Policy Solutions at Duke University. https://github.com/NIEPS-Water-Program/water-affordability" or "NIEPS Water Affordability Data" for short, and the url: https://github.com/NIEPS-Water-Program/water-affordability. You can cite all versions using the doi: 10.5281/zenodo.5156654. The doi for the current version is:
 <a href="https://zenodo.org/badge/latestdoi/385713868"><img src="https://zenodo.org/badge/385713868.svg" alt="DOI"></a>
 
 5. We currently have a paper in review that we will ask to be cited for authors using these data in publications. We will provide those details once the paper is accepted.
