@@ -17,8 +17,8 @@ Current release version and doi: <a href="https://zenodo.org/badge/latestdoi/385
 
 ## Versions
 
-1. Data that matches forthcoming paper. Includes: CA, PA, NC, part of TX, and 9 utilities in OR. There are 1,800 utilities in the data.
-2. Added remaining utilities in TX, NJ, and NM. There are 2,349 utilities in the data.
+1. v2021-1.0: Data that matches forthcoming paper. Includes: CA, PA, NC, part of TX, and 9 utilities in OR. There are 1,800 utilities in the data.
+2. v2021-2.0: Added remaining utilities in TX, NJ, and NM. There are 2,349 utilities in the data.
 
 
 ## Terms of Use
