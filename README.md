@@ -15,6 +15,11 @@ Current release version and doi: <a href="https://zenodo.org/badge/latestdoi/385
 3. **results** folder contains the results from the rscript. We do not include those files here because they are large. However, we provide the simplified versions used to develop the dashboard in the www folder. We provide the folder since it is necessary for the rcode to run correctly.
 4. **www** folder contains the data used to create the dashboard. The dashboard was built using html, css, and javascript. We also used mapbox tilesets and apis. Users will need to obtain their own API keys and create their own tilesets for use.
 
+## Versions
+
+1. Data that matches forthcoming paper. Includes: CA, PA, NC, part of TX, and 9 utilities in OR. There are 1,800 utilities in the data.
+2. Added remaining utilities in TX, NJ, and NM. There are 2,349 utilities in the data.
+
 
 ## Terms of Use
 1. Files in the data and rcode folder are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0: https://creativecommons.org/licenses/by/4.0/) by Duke University on behalf of the Nicholas Institute for Environmental Solutions.
