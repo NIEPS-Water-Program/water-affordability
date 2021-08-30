@@ -15,19 +15,31 @@
 n_states = length(state.list)
 year  <- rep(seq(1979, folder.year,1),n_states)
 state <- c(rep("ca", length(year)/n_states), rep("nc", length(year)/n_states), rep("pa", length(year)/n_states), 
-           rep("tx", length(year)/n_states), rep("or", length(year)/n_states))
+           rep("tx", length(year)/n_states), rep("or", length(year)/n_states), rep("nm", length(year)/n_states),
+           rep("nj", length(year)/n_states))
 #state min wages
 ca.wage <- c(2.9, 3.1, 3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35, 3.8, 4.25,4.25,4.25,4.25,4.25, 4.75, 5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15, 
-             5.85, 6.55, 7.25,7.25,7.25,7.25,7.25,7.25,7.25,7.25,10.50,11,12,12, 13); #CA IS DIFFERENT
+             5.85, 6.55, 7.25,7.25,7.25,7.25,7.25,7.25,7.25,7.25,10.50,11,12,12, 13); 
 #these use federal min wage
 nc.wage <- pa.wage <- tx.wage <- c(2.9, 3.1, 3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35, 3.8, 4.25,4.25,4.25,4.25,4.25, 4.75, 5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15, 
                                    5.85, 6.55, 7.25,7.25,7.25,7.25,7.25,7.25,7.25,7.25,7.25,7.25,7.25, 7.25, 7.25)
+
+#or minimum wage
 or.wage <- c(2.9, 3.1, 3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.80, 4.25, 4.75,4.75,4.75,4.75,4.75, 4.75, 5.50,6.00,6.50,6.50,6.50,6.90,7.05,7.25,7.50, 
              7.80, 7.95, 8.40, 8.40,8.50,8.80,8.95,9.10,9.25,9.25,9.75,10.25,10.75,11.25, 12, 12.75)
-all.wage <- c(ca.wage, nc.wage, pa.wage, tx.wage, or.wage)
+
+#nm minimum wage
+nm.wage <- c(2.9, 3.1, 3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35, 3.8, 4.25,4.25,4.25,4.25,4.25, 4.75, 5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,
+             5.85, 6.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 9.00, 10.50)
+
+#nj minimum wage
+nj.wage <- c(2.9, 3.1, 3.35, 3.35, 3.35, 3.35, 3.35, 3.35, 3.35, 3.35, 3.35, 3.80, 4.25, 5.05, 5.05, 5.05, 5.05, 5.05, 5.05, 5.05, 5.15, 5.15,
+             5.15, 5.15, 5.15, 5.15, 6.15, 7.15, 7.15, 7.15,  7.25, 7.25, 7.25, 7.25, 7.25, 8.25, 8.38, 8.38, 8.44, 8.6, 10.00, 11.00, 12.00)
+
+all.wage <- c(ca.wage, nc.wage, pa.wage, tx.wage, or.wage, nm.wage, nj.wage)
 #combine together - order does matter
 min.wage <- cbind(state, year, all.wage) %>% as.data.frame() %>% mutate(year = as.numeric(year), all.wage = as.numeric(all.wage))
-rm(list=c('year', 'state', 'n_states', 'ca.wage', 'pa.wage', 'nc.wage', 'or.wage', 'tx.wage', 'all.wage'))
+rm(list=c('year', 'state', 'n_states', 'ca.wage', 'pa.wage', 'nc.wage', 'or.wage', 'tx.wage', 'nm.wage', 'nj.wage', 'all.wage'))
 
 # block intersection variables
 percent.area.threshold <- 0.1; #set very low to make sure block group seleted
@@ -48,8 +60,8 @@ res.rates <- read.csv(paste0(swd_results, "estimated_bills.csv")) %>% mutate(sta
 ##############
 #load tract data -----------------------------------------------------------------------------------------------------------------------------------------------------
 tract.data <- read.csv(paste0(swd_data, "census_time\\census_tract_",selected.year,".csv"), colClasses=c("GEOID" = "character"))
-tract.data <- tract.data %>% mutate(state_fips = substr(GEOID,0,2)) %>% 
-  mutate(state = ifelse(state_fips=="48", "tx", ifelse(state_fips=="06", "ca", ifelse(state_fips=="41", "or", ifelse(state_fips=="37", "nc", ifelse(state_fips=="42", "pa", "uh-oh")))))) %>% select(-state_fips)
+tract.data <- tract.data %>% mutate(state_fips = substr(GEOID,0,2)) 
+tract.data <- merge(tract.data, state.df, by.x="state_fips", by.y="state.fips") %>% select(-state_fips) %>% rename(state = state.list)
 table(tract.data$state, useNA = "ifany")
 
 #reshape file
@@ -62,20 +74,23 @@ table(tract.data$state, useNA="ifany")
 
 #load census block data ---------------------------------------------------------------------------------------------------------------------------------
 block.group.all <- read.csv(paste0(swd_data, "census_time\\block_group_",selected.year,".csv"), colClasses=c("GEOID" = "character"))
-block.group.all <- block.group.all %>% mutate(state_fips = substr(GEOID,0,2)) %>% 
-  mutate(state = ifelse(state_fips=="48", "tx", ifelse(state_fips=="06", "ca", ifelse(state_fips=="41", "or", ifelse(state_fips=="37", "nc", ifelse(state_fips=="42", "pa", "uh-oh")))))) %>% select(-state_fips)
+block.group.all <- block.group.all %>% mutate(state_fips = substr(GEOID,0,2)) 
+block.group.all <- merge(block.group.all, state.df, by.x="state_fips", by.y="state.fips") %>% select(-state_fips) %>% rename(state = state.list)
 table(block.group.all$state, useNA="ifany")
   
 #load shapefile data ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #NOTE WE WANT TO LOAD IN THE INSIDE AND OUTSIDE VERSIONS WHERE POSSIBLE
-ca.systems <- read_sf(paste0(swd_data, "ca_in_out_systems.geojson")) %>%   mutate(systemarea = st_area(geometry)) %>% mutate(state="ca")
-nc.systems <- read_sf(paste0(swd_data, "nc_in_out_systems.geojson")) %>%   mutate(systemarea = st_area(geometry)) %>% mutate(state="nc")
+ca.systems <- read_sf(paste0(swd_data, "ca_in_out_systems.geojson")) %>% mutate(systemarea = st_area(geometry)) %>% mutate(state="ca")
+nc.systems <- read_sf(paste0(swd_data, "nc_in_out_systems.geojson")) %>% mutate(systemarea = st_area(geometry)) %>% mutate(state="nc")
 pa.systems <- read_sf(paste0(swd_data, "pa_systems.geojson")) %>% mutate(systemarea = st_area(geometry)) %>% select(-owner) %>% mutate(state="pa")
 tx.systems <- read_sf(paste0(swd_data, "tx_in_out_systems.geojson")) %>%   mutate(systemarea = st_area(geometry)) %>% mutate(state="tx")
 or.systems <- read_sf(paste0(swd_data, "or_systems.geojson")) %>% mutate(systemarea = st_area(geometry)) %>% mutate(category = "inside", state="or") %>% select(pwsid, gis_name, category, geometry, systemarea, state)
+nm.systems <- read_sf(paste0(swd_data, "nm_in_out_systems.geojson")) %>% mutate(systemarea = st_area(geometry)) %>% mutate(state="nm")
+nj.systems <- read_sf(paste0(swd_data, "nj_systems.geojson")) %>% mutate(systemarea = st_area(geometry)) %>% mutate(category = "inside", state="nj") %>% select(pwsid, gis_name, category, geometry, systemarea, state); #not inside/outside because all municipal
 
-gis.systems <- rbind(ca.systems, nc.systems, pa.systems, tx.systems, or.systems)
-rm(ca.systems, nc.systems, pa.systems, tx.systems, or.systems)
+
+gis.systems <- rbind(ca.systems, nc.systems, pa.systems, tx.systems, or.systems, nm.systems, nj.systems)
+rm(ca.systems, nc.systems, pa.systems, tx.systems, or.systems, nm.systems, nj.systems)
 
 #load census block group shapefiles -------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 bk.group <- read_sf(paste0(swd_data, "block_groups_", selected.year,".geojson")) %>% mutate(area = st_area(geometry))
@@ -296,11 +311,13 @@ or.meta <- read_excel(paste0(swd_data, "rates_data\\rates_or.xlsx"), sheet="rate
 pa.meta <- read_excel(paste0(swd_data, "rates_data\\rates_pa.xlsx"), sheet="rateTable") %>% mutate(state = "pa")
 nc.meta <- read_excel(paste0(swd_data, "rates_data\\rates_nc.xlsx"), sheet="rateTable") %>% mutate(state = "nc") %>% mutate(pwsid = paste0("NC",str_remove_all(pwsid, "[-]")))
 tx.meta <- read_excel(paste0(swd_data, "rates_data\\rates_tx.xlsx"), sheet="rateTable") %>% mutate(state = "tx")
-rates.meta <- rbind(or.meta, ca.meta, pa.meta, nc.meta, tx.meta) %>% select(pwsid) %>% distinct() %>% filter(update_bill == "yes"); #filter is optional
+nm.meta <- read_excel(paste0(swd_data, "rates_data\\rates_nm.xlsx"), sheet="rateTable") %>% mutate(state = "nm")
+nj.meta <- read_excel(paste0(swd_data, "rates_data\\rates_nj.xlsx"), sheet="rateTable") %>% mutate(state = "nj")
+rates.meta <- rbind(or.meta, ca.meta, pa.meta, nc.meta, tx.meta, nm.meta, nj.meta) %>% filter(update_bill == "yes") %>% select(pwsid) %>% distinct() ; #filter is optional
 
 rates.pwsid <- rates.meta$pwsid
 update.list <- rates.pwsid
-rm(ca.meta, or.meta, pa.meta, nc.meta, tx.meta)
+rm(ca.meta, or.meta, pa.meta, nc.meta, tx.meta, nm.meta, nj.meta)
 ##############################################################################################################################
 
 #shapefile problems for the following nc: NC0161010 shapefile problem, 
@@ -320,8 +337,8 @@ all.cost.to.bill <- as.data.frame(matrix(nrow=0, ncol=8));    colnames(all.cost.
 hbi_mod = 4.6; #4.6% is ~ 1 day of work. AWWA recommended 7%. EPA is considering lower.
 hbi_high = hbi_mod*2; #AWWA recommended 10%
 
-#for (i in 1:length(rates.pwsid)){
-for (i in 1901:2000){
+for (i in 1:length(rates.pwsid)){
+#for (i in 501:700){
   #select utility
   selected.pwsid = as.character(rates.pwsid[i]);
   
@@ -549,3 +566,4 @@ rm(rates.meta, rates.table, sel.cost, selected.bk, orig.cost.bill, orig.scores, 
 rm(dist, dist.inside, dist.outside, hh10, hh100, hh125, foo, service.area.results, tract.data, wage.cost, water.system, block.scores, combo, res.rates, gis.systems, bk.group, bk.int)
 rm(all.cost, annual.hh.cost, block.data, block.group.all, cost_to_bill, foo.zt, zt, hh15, hh150, hh20, hh200, hh25, hh250, hh30, hh35, hh40, hh45,hh50, hh60, hh75, moe.threshold, i, j, k, percent.area.threshold)
 rm(update.list, hh75, rates.pwsid, rep.per.cost, selected.pwsid, state.var)
+rm(bk.up1, bk.up2, bk.up3)

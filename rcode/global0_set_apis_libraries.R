@@ -41,7 +41,8 @@ rm(list = setdiff(ls(), lsf.str())) #removes anything bunt functions
 #
 ######################################################################################################################################################################
 #state lists --> ad a state and its fips code as needed
-state.list <- c("ca", "pa", "nc", "tx", "or");  state.fips <- c("06","42", "37", "48", "41")
+state.list <- c("ca", "pa", "nc", "tx", "or", "nj", "nm");  state.fips <- c("06","42", "37", "48", "41", "34","35")
+state.df <- cbind(state.list, state.fips) %>% as.data.frame(); state.df
 selected.year <- 2019; #reflects census year with current acs data
 folder.year <- 2021; #reflects current year
 

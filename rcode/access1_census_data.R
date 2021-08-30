@@ -1,6 +1,6 @@
 #######################################################################################################################################################
 #
-# This script is run once a year to find and update data for the affordability dashboard. Run each time a new state is added.
+# This script is run once a year to find and update data for the affordability dashboard.
 #  Crated by Lauren Patterson, 2021
 #
 ########################################################################################################################################################
@@ -14,15 +14,15 @@
 ##################################
 #   (1)   MUNICIPALITIES / PLACES
 #################################
-
 #call census api
 muni <- read_sf("https://opendata.arcgis.com/datasets/d8e6e822e6b44d80b4d3b5fe7538576d_0.geojson");
 #reduce to states of interest
 muni <-  muni %>% filter(STFIPS %in% state.fips) %>% select(NAME, CLASS, STFIPS, PLACEFIPS, SQMI, geometry) %>% rename(city_name = NAME) %>% st_transform(crs = 4326) 
-muni <- muni %>% mutate(state = ifelse(STFIPS == "06", "ca", ifelse(STFIPS == "41", "or", "hold")))
+muni <- muni %>% mutate(state = ifelse(STFIPS == "06", "ca", ifelse(STFIPS == "41", "or", ifelse(STFIPS == "35", "nm", "hold"))))
 
 #or systems are based on municipality
 muni.or <- muni %>% filter(state=="or")
+muni.nm <- muni %>% filter(state=="nm")
 geojson_write(muni.or, file = paste0(swd_data, folder.year, "\\or_systems.geojson"))
 
 
@@ -46,17 +46,25 @@ nc.muni <- read_sf("https://opendata.arcgis.com/datasets/ee098aeaf28d44138d63446
 
 #TX
 tx.muni <- read_sf("https://opendata.arcgis.com/datasets/09cd5b6811c54857bd3856b5549e34f0_0.geojson") %>% st_transform(crs = 4326) %>% select(CITY_NM, geometry) %>% rename(city_name = CITY_NM) %>% mutate(state="tx")
+  mapview::mapview(tx.muni)
+
+#NJ
+nj.muni <- read_sf("https://opendata.arcgis.com/datasets/3d5d1db8a1b34b418c331f4ce1fd0fef_2.geojson") %>% st_transform(crs = 4326) %>% select(NAME, geometry) %>% rename(city_name = NAME) %>% mutate(state="nj")
+  mapview::mapview(nj.muni)
   
+
 #bind state munis together and save into affordability data folder
-muni <- muni %>% filter(state %in% c("or")) %>% select(city_name, geometry, state) #only keep those states where another spatial file for municipal boundaries was not found
-muni <- rbind(muni, ca.muni, pa.muni, nc.muni, tx.muni); 
+muni <-  muni %>% filter(state == "or" | state == "nm") %>% select(city_name, geometry, state) #only keep those states where another spatial file for municipal boundaries was not found
+muni <- rbind(muni, ca.muni, pa.muni, nc.muni, tx.muni, nj.muni); 
+
+
 all.muni <- muni %>% ms_simplify(keep=0.5, keep_shapes=TRUE); #simplify shapefiles a little (helps st_intersetion to work better)
 geojson_write(all.muni, file = paste0(swd_data, "muni.geojson"))
 
 #chck to find a good balance of simplifying polygons... 0.08 for munis is pretty good... miss some tiny pokey parts. I think more simplified for dashboard, but 0.5 start to lose too much.
 leaflet() %>% addProviderTiles("Stamen.TonerLite") %>% 
-  addPolygons(data = all.muni,  fillOpacity= 0.6,  fillColor = "gray", color="black",  weight=3) %>% 
-  addPolygons(data = muni,  fillOpacity= 0.3,  fillColor = "white", color="red",  weight=1) 
+  addPolygons(data = all.muni %>% filter(state=="nj"),  fillOpacity= 0.6,  fillColor = "gray", color="black",  weight=5) %>% 
+  addPolygons(data = muni %>% filter(state=="nj"),  fillOpacity= 0.3,  fillColor = "white", color="red",  weight=1) 
 
 
 
@@ -68,20 +76,19 @@ county <- get_acs(geography = "county", variables = "B01001_001E", state = state
 county <- county %>% mutate(state_fips = substr(GEOID,0,2)) %>% select(GEOID, NAME, state_fips, geometry)
 #create name - remove anything before "County"... or before ","
 county <- county %>% mutate(name = gsub("(.*),.*", "\\1", NAME)) %>% mutate(name = substr(name,0,(nchar(name)-7))) %>% 
-  mutate(state = ifelse(state_fips=="48", "tx", ifelse(state_fips=="06", "ca", ifelse(state_fips=="41", "or", ifelse(state_fips=="37", "nc", ifelse(state_fips=="42", "pa", "uh-oh")))))) %>% select(-NAME, -state_fips)
+  mutate(state = ifelse(state_fips=="48", "tx", ifelse(state_fips=="06", "ca", ifelse(state_fips=="41", "or", ifelse(state_fips=="37", "nc", ifelse(state_fips=="42", "pa", 
+                 ifelse(state_fips=="34", "nj", ifelse(state_fips=="35", "nm", "uh-oh")))))))) %>% select(-NAME, -state_fips)
 table(county$state)
-county <- county %>% ms_simplify(keep=0.45, keep_shapes=TRUE)
+#county <- county %>% ms_simplify(keep=0.45, keep_shapes=TRUE)
 geojson_write(county, file = paste0(swd_data, "county.geojson"))
 
 #check to find a good balance of simplifying polygons
 leaflet() %>% addProviderTiles("Stamen.TonerLite") %>% 
-  addPolygons(data = county,  fillOpacity= 0.6,  fillColor = "gray", color="black",  weight=3) %>% 
-  addPolygons(data = bk.up,  fillOpacity= 0.3,  fillColor = "white", color="red",  weight=1) 
-
+  addPolygons(data = county,  fillOpacity= 0.6,  fillColor = "gray", color="black",  weight=3)
 
 state <- get_acs(geography = "state", variables = "B01001_001E", year = selected.year, geometry=TRUE) %>% st_transform(crs= 4326)
 state <- state %>% select(GEOID, NAME, geometry) %>% rename(geoid = GEOID, name = NAME)
-state <- state %>% mutate(data = ifelse(geoid %in% state.fips, "yes", "no")) %>% mutate(data = ifelse(name == "Oregon", "muni", data))
+state <- state %>% mutate(data = ifelse(geoid %in% state.fips, "yes", "no")) %>% mutate(data = ifelse(name %in% c("Oregon", "New Mexico"), "muni", data))
 geojson_write(state, file = paste0(swd_data, "state.geojson"))
 
 
@@ -93,8 +100,9 @@ geojson_write(state, file = paste0(swd_data, "state.geojson"))
 fips = unique(substr(county$GEOID,3,5)); #list of unique county fips codes that we want census tract and block group data for
 tract.sf <- get_acs(geography = "tract", variables = "B19080_001E", state = state.fips, county = fips, year = selected.year, geometry = TRUE); #set geometry as true to get spatial file for intersecting later
 bk.up <- tract.sf;
-tract.sf <- tract.sf %>% select(GEOID, geometry) %>% mutate(state_fips = substr(GEOID,0,2)) %>% 
-  mutate(state = ifelse(state_fips=="48", "tx", ifelse(state_fips=="06", "ca", ifelse(state_fips=="41", "or", ifelse(state_fips=="37", "nc", ifelse(state_fips=="42", "pa", "uh-oh")))))) %>% select(-state_fips)
+tract.sf <- tract.sf %>% select(GEOID, geometry) %>% mutate(state_fips = substr(GEOID,0,2))
+tract.sf <- merge(tract.sf, state.df, by.x="state_fips", by.y="state.fips")
+tract.sf <- tract.sf %>% select(-state_fips) %>% rename(state = state.list)
 #tract.sf <- tract.sf %>% ms_simplify(keep=0.45, keep_shapes=TRUE); #don't simplify right now - keep full size for analysis. Simplify for dashboard.
 geojson_write(tract.sf, file = paste0(swd_data, "tract_", selected.year,".geojson"))
 
@@ -110,10 +118,9 @@ for (i in 2:length(state.fips)){
   bkgroup.sf <- rbind(bkgroup.sf, bk.up);
   print(state.fips[i]);
 }
-
 bk.up <- bkgroup.sf;
-bkgroup.sf <- bkgroup.sf %>% select(GEOID, geometry) %>% mutate(state_fips = substr(GEOID,0,2)) %>% 
-  mutate(state = ifelse(state_fips=="48", "tx", ifelse(state_fips=="06", "ca", ifelse(state_fips=="41", "or", ifelse(state_fips=="37", "nc", ifelse(state_fips=="42", "pa", "uh-oh")))))) %>% select(-state_fips)
+bkgroup.sf <- bkgroup.sf %>% select(GEOID, geometry) %>% mutate(state_fips = substr(GEOID,0,2)) 
+bkgroup.sf <- merge(bkgroup.sf, state.df, by.x="state_fips", by.y="state.fips") %>% select(-state_fips) %>% rename(state = state.list)
 geojson_write(bkgroup.sf, file = paste0(swd_data,"block_groups_",selected.year,".geojson"))
 
 
@@ -146,7 +153,7 @@ for (i in 2:length(state.fips)){
                                                           "B19001_009E", "B19001_010E", "B19001_011E", "B19001_012E", "B19001_013E", "B19001_014E", "B19001_015E", "B19001_016E", "B19001_017E", "B19013_001E"), 
                    state=state.fips[i], year=selected.year, geometry = FALSE)
   block.data <- rbind(block.data, bk.up)
-  pring(state.fips[i]);
+  print(state.fips[i]);
 }
 write.csv(block.data, paste0(swd_data,"census_time\\block_group_",selected.year,".csv"), row.names=FALSE)                        
 

@@ -11,32 +11,35 @@
 # SAVE OUT GEOJSON FOR HTML - IN SIMPLIFIED FORMAT - only need to do for each state
 #
 ###################################################################################################################################################################
-swd_html = "C:\\Users\\lap19\\Documents\\GitHub\\bkup\\www\\data\\"
-
 #only need to do once
 county <- read_sf(paste0(swd_data, "county.geojson")) 
 leaflet() %>% addProviderTiles("Stamen.TonerLite") %>% 
-  addPolygons(data = bk.up,  fillOpacity= 0.6,  fillColor = "gray", color="black",  weight=3) %>% 
   addPolygons(data = county,  fillOpacity= 0.3,  fillColor = "white", color="red",  weight=1) 
-geojson_write(county, file = paste0(swd_html, "mapbox_source//county.geojson"))
+geojson_write(county, file = paste0(swd_html, "..//mapbox_sources//county.geojson"))
 
-state <- read_sf(paste0(swd_data, "state.geojson")) #%>% ms_simplify(keep = 0.5, keep_shapes=TRUE)
-geojson_write(state, file = paste0(swd_html, "mapbox_source//state.geojson"))
+state <- read_sf(paste0(swd_data, "state.geojson")) %>% ms_simplify(keep=0.75, keep_shapes=TRUE) #%>% ms_simplify(keep = 0.5, keep_shapes=TRUE)
+state <- state %>% mutate(data = ifelse(geoid %in% state.fips, "yes", "no")) %>% filter(name != "Alaska") %>% filter(name != "Hawaii") %>% filter(name != "Puerto Rico")
+
+geojson_write(state, file = paste0(swd_html, "..//mapbox_sources//state.geojson"))
 
 
 #MUNIS COME FROM DIFFERENT SOURCES - except OR and CA
-all.muni  <- read_sf(paste0(swd_data, "mapbox_source//muni.geojson"))
+all.muni  <- read_sf(paste0(swd_data, "muni.geojson"))
 bk.up <- all.muni
-all.muni <- all.muni %>% ms_simplify(keep = 0.25, keep_shapes=TRUE); #already been simplified by 0.5 (0.15 is a little too much - file size is 5 MB. 0.20 is good but file size is 10 MB and slow)
+all.muni <- all.muni %>% ms_simplify(keep = 0.40, keep_shapes=TRUE); 
+
+#remove special characters - do not translate into mapb
+all.muni <- all.muni %>% mutate(city_name = iconv(city_name, to='ASCII//TRANSLIT')) 
+
 leaflet() %>% addProviderTiles("Stamen.TonerLite") %>% 
   addPolygons(data = bk.up,  fillOpacity= 0.6,  fillColor = "gray", color="black",  weight=3) %>% 
   addPolygons(data = all.muni,  fillOpacity= 0.3,  fillColor = "white", color="red",  weight=1) 
-geojson_write(all.muni, file = paste0(swd_html, "muni.geojson"))
+geojson_write(all.muni, file = paste0(swd_html, "..//mapbox_sources//muni.geojson"))
 
 #save point file for labels
 all.muni.pt <- st_centroid(all.muni)
-geojson_write(all.muni.pt, file = paste0(swd_html, "mapbox_source//muni_centers.geojson"))
-rm(all.muni.pt, bk.up)
+geojson_write(all.muni.pt, file = paste0(swd_html, "..//mapbox_sources//muni_centers.geojson"))
+rm(all.muni.pt, bk.up, all.muni)
 
 
 
@@ -89,6 +92,10 @@ table(substr(block.scores$GEOID,0,2))
 all.rates <- read.csv(paste0(swd_results, "utility_rates_table.csv"))
 cws <- read.csv(paste0(swd_data, "sdwis//cws_systems.csv")) %>% filter(PWSID %in% unique.pwsid)
 cws <- cws %>% rename(pwsid=PWSID, name = PWS_NAME, population = POPULATION_SERVED_COUNT, owner_type = OWNER_TYPE_CODE) %>% select(pwsid, name, population, owner_type)
+#lots of duplicates in NJ
+cws <- cws %>% group_by(pwsid, name, owner_type) %>% summarize(population = median(population, na.rm=TRUE), .groups="drop")
+#keep the first in the list if different names... will use names in rates
+cws <- cws %>% distinct(pwsid, .keep_all = TRUE)
 
 
 #Create summary
@@ -134,13 +141,30 @@ full.summary <- full.summary %>% mutate(sizeCategory = ifelse(population >= vl_b
                                        ifelse(population > ml_break & population < vl_break, "Large", sizeCategory))))
 
 #fill in missing info not in EPA SDWIS
-full.summary <- full.summary %>% mutate(sizeCategory = ifelse(pwsid=="NC5063021", "Very Small", sizeCategory), owner_type = ifelse(pwsid=="NC5063021", "L", owner_type)); #https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=50-63-021&year=2019
-full.summary <- full.summary %>% mutate(sizeCategory = ifelse(pwsid=="PA1230012", "Medium", sizeCategory), owner_type = ifelse(pwsid=="PA1230012", "P", owner_type)); #https://www.ewg.org/tapwater/system.php?pws=PA1230012
-full.summary <- full.summary %>% mutate(sizeCategory = ifelse(pwsid=="PA2450045", "Very Small", sizeCategory), owner_type = ifelse(pwsid=="PA2450045", "P", owner_type)); #https://www.nytimes.com/interactive/projects/toxic-waters/contaminants/pa/monroe/pa2450045-mountain-top-estates/index.html
-full.summary <- full.summary %>% mutate(sizeCategory = ifelse(pwsid=="PA2520051", "Very Small", sizeCategory), owner_type = ifelse(pwsid=="PA2520051", "P", owner_type)); #https://www.annualreports.com/HostedData/AnnualReportArchive/m/NASDAQ_MSEX_2018.pdf
+full.summary <- full.summary %>% mutate(sizeCategory = ifelse(pwsid=="NC5063021", "Very Small", sizeCategory), owner_type = ifelse(pwsid=="NC5063021", "Local", owner_type)); #https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=50-63-021&year=2019
+full.summary <- full.summary %>% mutate(sizeCategory = ifelse(pwsid=="PA1230012", "Medium", sizeCategory), owner_type = ifelse(pwsid=="PA1230012", "Private", owner_type)); #https://www.ewg.org/tapwater/system.php?pws=PA1230012
+full.summary <- full.summary %>% mutate(sizeCategory = ifelse(pwsid=="PA2450045", "Very Small", sizeCategory), owner_type = ifelse(pwsid=="PA2450045", "Private", owner_type)); #https://www.nytimes.com/interactive/projects/toxic-waters/contaminants/pa/monroe/pa2450045-mountain-top-estates/index.html
+full.summary <- full.summary %>% mutate(sizeCategory = ifelse(pwsid=="PA2520051", "Very Small", sizeCategory), owner_type = ifelse(pwsid=="PA2520051", "Private", owner_type)); #https://www.annualreports.com/HostedData/AnnualReportArchive/m/NASDAQ_MSEX_2018.pdf
+full.summary <- full.summary %>% mutate(sizeCategory = ifelse(pwsid=="NM3503129", "Small", sizeCategory), owner_type = ifelse(pwsid=="NM3503129", "Local", owner_type));
+full.summary <- full.summary %>% mutate(sizeCategory = ifelse(pwsid=="NM3524626", "Large", sizeCategory), owner_type = ifelse(pwsid=="NM3524626", "Private", owner_type));
+table(full.summary$sizeCategory, useNA='ifany')
+table(full.summary$owner_type, useNA="ifany")
+
 
 #since so few - F, M, N, and S to "Other"
 full.summary <- full.summary %>% mutate(owner_type = ifelse(owner_type=="Local" | owner_type == "Private", owner_type, "Other"))
+
+#since owner errors in PA and similar start to names - check and make private
+zt <- subset(full.summary, substr(service_area, 1, 7) == "Aqua PA"); table(zt$owner_type); #looks ok
+zt <- subset(full.summary, substr(service_area, 1, 21) == "Pennsylvania American"); table(zt$owner_type); #Two are set as local, one to other... set local to Private
+full.summary <- full.summary %>% mutate(owner_type = ifelse(substr(service_area,1,21) == "Pennsylvania American" & owner_type=="Local", "Private", owner_type)); #set Local to Private
+
+zt <- subset(full.summary, substr(service_area, 1, 4) == "Suez"); table(zt$owner_type); #several listed as local... set those to private
+full.summary <- full.summary %>% mutate(owner_type = ifelse(substr(service_area,1,4) == "Suez" & owner_type=="Local", "Private", owner_type)); #set Local to Private
+
+zt <- subset(full.summary, substr(service_area, 1, 19) == "California American"); table(zt$owner_type); #All private
+zt <- subset(full.summary, substr(service_area, 1, 24) == "California Water Service"); table(zt$owner_type); #1 local - set to private
+full.summary <- full.summary %>% mutate(owner_type = ifelse(substr(service_area,1,24) == "California Water Service" & owner_type=="Local", "Private", owner_type)); #set Local to Private
 
 #remove to those you are using
 full.summary <- full.summary %>% dplyr::select(-LaborHrsMin, -LaborHrsMax)
@@ -163,9 +187,8 @@ full.summary = merge(full.summary, bs.hist, by=c("pwsid", "hh_use"))
 main.data <- full.summary %>% select(pwsid, service_area, state, sizeCategory, owner_type) %>% distinct()
 write.csv(main.data, paste0(swd_html,"utility_descriptions.csv"), row.names=FALSE)
 
-full.summary.short <- full.summary %>% select(pwsid, hh_use, HBI, PPI, TRAD, burden, LaborHrs, low, low_mod, mod_high, high, very_high)
+full.summary.short <- full.summary %>% select(pwsid, hh_use, HBI, PPI, TRAD, burden, LaborHrs)
 write.csv(full.summary.short, paste0(swd_html,"utility_afford_scores.csv"), row.names=FALSE)
-
 
 
 #commodity price
@@ -201,12 +224,13 @@ nc.systems <- read_sf(paste0(swd_data, "nc_systems.geojson")) %>% ms_simplify(ke
 or.systems <- read_sf(paste0(swd_data, "or_systems.geojson")) %>% ms_simplify(keep = 0.5, keep_shapes = TRUE) %>% select(pwsid, gis_name, state, geometry)
 pa.systems <- read_sf(paste0(swd_data, "pa_systems.geojson")) %>% ms_simplify(keep = 0.5, keep_shapes = TRUE) %>% mutate(state = "pa") %>% select(pwsid, gis_name, state, geometry)
 tx.systems <- read_sf(paste0(swd_data, "tx_systems.geojson")) %>% ms_simplify(keep = 0.5, keep_shapes = TRUE)
-
+nm.systems <- read_sf(paste0(swd_data, "nm_systems.geojson")) %>% ms_simplify(keep = 0.5, keep_shapes = TRUE)
+nj.systems <- read_sf(paste0(swd_data, "nj_systems.geojson")) %>% ms_simplify(keep = 0.5, keep_shapes = TRUE)
 
 #save to only those systems with pwsid in unique.pwsid
-all.systems <- rbind(ca.systems, nc.systems, or.systems, pa.systems, tx.systems) %>% filter(pwsid %in% unique.pwsid)
+all.systems <- rbind(ca.systems, nc.systems, or.systems, pa.systems, tx.systems, nm.systems, nj.systems) %>% filter(pwsid %in% unique.pwsid)
 #mapview::mapview(all.systems)
-rm(ca.systems, nc.systems, or.systems, pa.systems, tx.systems)
+rm(ca.systems, nc.systems, or.systems, pa.systems, tx.systems, nm.systems, nj.systems)
 
 simple.systems <- all.systems %>% ms_simplify(keep = 0.02, keep_shapes=TRUE)
 mapview::mapview(simple.systems)
@@ -216,12 +240,19 @@ geojson_write(simple.systems, file = paste0(swd_html, "simple_water_systems.geoj
 #loop through and save individual volumes
 hh_vols <- c(0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000)
 bare.systems <- all.systems %>% dplyr::select(pwsid, geometry)
-for (i in 1:length(hh_vols)){
+bare.systems <- all.systems %>% group_by(pwsid) %>% summarise() %>%  st_cast(); #this dissolves polygons
+#fix geometry
+if (FALSE %in% st_is_valid(bare.systems)) {bar.systems <- suppressWarnings(st_buffer(bare.systems[!is.na(st_is_valid(bare.systems)),], 0.0)); print("fixed")}#fix corrupt shapefiles for block group... takes awhile can try to skip
+
+#need to replace all special characters
+full.summary <- full.summary %>% mutate(service_area = iconv(service_area, to='ASCII//TRANSLIT'))
+
+for (i in 2:length(hh_vols)){
   zt = NA; zt.systems = NA;
-  zt <- full.summary.short %>% filter(hh_use == hh_vols[i]) %>% dplyr::select(-hh_use) %>% mutate(HBI = round(HBI, 1), PPI = round(PPI, 1), TRAD = round(TRAD, 1), LaborHrs = round(LaborHrs, 1))
+  zt <- full.summary %>% filter(hh_use == hh_vols[i]) %>% dplyr::select(-hh_use, -population) %>% mutate(HBI = round(HBI, 1), PPI = round(PPI, 1), TRAD = round(TRAD, 1), LaborHrs = round(LaborHrs, 1))
 
   zt.systems <- merge(bare.systems, zt, by.x="pwsid", by.y="pwsid", all.x=TRUE)
-  geojson_write(zt.systems, file = paste0(swd_html, "mapbox_source\\water_systems_",hh_vols[i],".geojson")); #aim for 5 MB
+  geojson_write(zt.systems, file = paste0(swd_html, "..\\mapbox_sources\\water_systems_",hh_vols[i],".geojson")); #aim for 5 MB
   
   print(hh_vols[i])
 }
@@ -235,7 +266,7 @@ for (i in 1:length(hh_vols)){
 #######################################################################################################################################################################################3
 #read in block groups
 bk.groups <- read_sf(paste0(swd_data, "block_groups_", selected.year, ".geojson")) %>% filter(GEOID %in% unique.bgs)
-bk.groups <- bk.groups %>% ms_simplify(keep = 0.45, keep_shapes=TRUE); #Trying to balance simplicity and file size
+bk.groups <- bk.groups %>% ms_simplify(keep = 0.65, keep_shapes=TRUE); #Trying to balance simplicity and file size
 #mapview::mapview(bk.groups %>% filter(substring(GEOID,0,2)=="42"))
 table(substr(bk.groups$GEOID,0,2))
 #geojson_write(bk.groups, file = paste0(swd_html, "all_bk_groups.geojson")); #aim for 10MB
@@ -251,14 +282,16 @@ block.scores <- block.scores %>% mutate(burden = ifelse(PPI >= 35 & HBI >= hb_hi
 
 
 hh_vols <- c(0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000)
-for (i in 1:length(hh_vols)){
+for (i in 2:length(hh_vols)){
   zt <- block.scores %>% filter(hh_use == hh_vols[i]) %>% dplyr::select(-hh_use, -hhsize, -totalpop, -state) %>% mutate(HBI = round(HBI, 1), PPI = round(PPI, 1), TRAD = round(TRAD, 1))
   
   zt.systems <- merge(bk.groups, zt, by.x="GEOID", by.y="GEOID", all.x=TRUE) %>% select(-state)
-  
-  geojson_write(zt.systems, file = paste0(swd_html, "mapbox_source\\block_groups_",hh_vols[i],".geojson")); #aim for 5 MB
+  geojson_write(zt.systems, file = paste0(swd_html, "..//mapbox_sources//block_groups_",hh_vols[i],".geojson")); #aim for 5 MB
 
+  #we don't use block scores for much so can slim down
+  zt <- zt %>% select(GEOID, pwsid, burden)
   write.csv(zt, paste0(swd_html, "block_scores\\block_scores_",hh_vols[i],".csv"), row.names=FALSE); #can split by hh_volume
+
   print(hh_vols[i])
 }
 
@@ -316,9 +349,11 @@ or.meta <- read_excel(paste0(swd_data, "rates_data\\rates_or.xlsx"), sheet="rate
 pa.meta <- read_excel(paste0(swd_data, "rates_data\\rates_pa.xlsx"), sheet="ratesMetadata") %>% mutate(state = "pa") %>% select(-notes)
 nc.meta <- read_excel(paste0(swd_data, "rates_data\\rates_nc.xlsx"), sheet="ratesMetadata") %>% mutate(state = "nc") %>% select(-notes) %>% mutate(pwsid = paste0("NC",str_remove_all(pwsid, "[-]")))
 tx.meta <- read_excel(paste0(swd_data, "rates_data\\rates_tx.xlsx"), sheet="ratesMetadata") %>% mutate(state = "tx") %>% select(-notes)
+nm.meta <- read_excel(paste0(swd_data, "rates_data\\rates_nm.xlsx"), sheet="ratesMetadata") %>% mutate(state = "nm") %>% select(-notes)
+nj.meta <- read_excel(paste0(swd_data, "rates_data\\rates_nj.xlsx"), sheet="ratesMetadata") %>% mutate(state = "nj") %>% select(-notes)
 
 #condense to similar names
-all.meta <- rbind(ca.meta, or.meta, pa.meta, nc.meta, tx.meta)
+all.meta <- rbind(ca.meta, or.meta, pa.meta, nj.meta, nm.meta, nc.meta, tx.meta)
 all.meta <- all.meta %>% mutate(date = as.Date(paste0(year,"-",month,"-",day), "%Y-%m-%d")) %>% filter(pwsid %in% full.summary$pwsid) %>% 
   select(pwsid, service_area, city_name, utility_name, date, year, month, day, service_type, website, last_updated) %>% rename(service = service_type)
 table(all.meta$service, useNA="ifany")

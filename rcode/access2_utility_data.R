@@ -7,7 +7,6 @@
 #
 ########################################################################################################################################################
 
-
 #read in municipal file to create inside and outside rate areas
 muni <- read_sf(paste0(swd_data, "muni.geojson"))
 
@@ -187,6 +186,7 @@ leaflet() %>% addProviderTiles("Stamen.TonerLite") %>%
 
 rm(all.in.out, nc.sel, nc.sys, intmunis, st_erase, st_union, nc.muni, nc.rates, nc.pwsid, in.out, perOut)
 
+
 ###################################################################################################################################################################
 #
 # (1) UPDATE UTILITY SPATIAL BOUNDARIES OR ADD NEW STATES: TX
@@ -205,10 +205,22 @@ geojson_write(tx.sys, file = paste0(swd_data, "tx_systems.geojson"))
 #Intersect the municipal boundaries with the state to create inside and outside
 #simplify a little to avoid a bunch of errors
 tx.muni <- muni %>% filter(state=="tx") #%>% ms_simplify(keep=0.5, keep_shapes=TRUE); simplified earlier to 0.5 in saved file
-tx.rates <- read_excel(paste0(swd_data, "rates_data//rates_tx.xlsx"), sheet="rateTable") %>%  filter(other_class=="inside_outside")
+tx.rates <- read_excel(paste0(swd_data, "rates_data//rates_tx.xlsx"), sheet="rateTable") %>% filter(other_class=="inside_outside")
 
 #fix corrupt shapfiles
+#New SF package is breaking this:
+tx.muni$geometry <- tx.muni$geometry %>% s2::s2_rebuild() %>% sf::st_as_sfc()
+sf::sf_use_s2(FALSE)
 if (FALSE %in% st_is_valid(tx.muni)) {tx.muni <- suppressWarnings(st_buffer(tx.muni[!is.na(st_is_valid(tx.muni)),], 0.0)); print("fixed")}#fix corrupt shapefiles
+#for (i in 1:dim(tx.muni)[1]){
+#  if(st_is_valid(tx.muni[i,])){
+#    tx.muni[i,] = st_make_valid(tx.muni[i,])
+#    print(paste0(i, ": ", st_is_valid(tx.muni[i,])))
+#  }
+#  if(i %in% seq(0,2000,50))
+#    print(paste0(i, ": ", round(i/dim(tx.muni)[1]*100,2), " done"))
+#}
+
 
 tx.rates <- tx.rates %>% filter(pwsid %in% tx.sys$pwsid); #only keep those that are in the shapefiel
 tx.pwsid <- unique(tx.rates$pwsid)
@@ -216,16 +228,18 @@ tx.pwsid <- unique(tx.rates$pwsid)
 all.in.out <- tx.sys %>% filter(pwsid %notin% tx.pwsid) %>% mutate(category = "inside") %>% select(pwsid, gis_name, category, geometry)
 
 for (i in 1:length(tx.pwsid)){
+#for (i in 101:110){
   st_erase = all.in.out %>% filter(category == "blank")
   tx.sel <- tx.sys %>% filter(pwsid==tx.pwsid[i])
-  intmunis <- st_intersection(tx.sel, tx.muni) 
-  
+  intmunis <- st_intersection(tx.sel, tx.muni)
+
   if(dim(intmunis)[1] > 0){
     intmunis$muniArea = st_area(intmunis$geometry)
     inside <- st_union(intmunis) %>% st_sf() 
     
     st_erase = st_difference(tx.sel, inside) %>% mutate(category = "outside") %>% select(pwsid, gis_name, category, geometry)
     st_erase$area = st_area(st_erase$geometry)
+    st_erase <- st_cast(st_erase); #TX2270033 wants to be a GEOMETRYCOLLECTION
     
     if(dim(st_erase)[1] > 0) {
       st_union <- inside %>% mutate(pwsid = tx.pwsid[i], gis_name = tx.sel$gis_name[1], category = "inside") %>% select(pwsid, gis_name, category, geometry)
@@ -234,7 +248,7 @@ for (i in 1:length(tx.pwsid)){
       in.out = rbind(st_erase, st_union) %>% select(pwsid, gis_name, category, geometry)
       perOut = 100*(as.numeric(st_erase$area)/(as.numeric(st_erase$area) + as.numeric(st_union$area)))
       
-      #if outside area is less than 1%, just make all insdie
+      #if outside area is less than 1%, just make all inside
       if(perOut <= 1){
         in.out = tx.sel %>% mutate(category="inside") %>% select(pwsid, gis_name, category, geometry)
       }
@@ -249,10 +263,15 @@ for (i in 1:length(tx.pwsid)){
   }
   
   #rbind to a full database
+  #print(summary(in.out))
+  
   all.in.out <- rbind(all.in.out, in.out)
   print(i)
 }
 table(all.in.out$category)
+summary(all.in.out)
+bk.up <- all.in.out
+
 geojson_write(all.in.out, file = paste0(swd_data, "tx_in_out_systems.geojson"))
 
 leaflet() %>% addProviderTiles("Stamen.TonerLite") %>% 
@@ -263,6 +282,109 @@ leaflet() %>% addProviderTiles("Stamen.TonerLite") %>%
   
 rm(all.in.out, tx.sel, tx.sys, intmunis, st_erase, st_union, tx.muni, tx.rates, ca.pwsid, in.out, perOut, inside, muni)
 
+
+###################################################################################################################################################################
+#
+# (1) UPDATE UTILITY SPATIAL BOUNDARIES OR ADD NEW STATES: NM
+#
+####################################################################################################################################################################
+##nm.sys2 <- read_sf("https://catalog.newmexicowaterdata.org/dataset/5d069bbb-1bfe-4c83-bbf7-3582a42fce6e/resource/ccb9f5ce-aed4-4896-a2f1-aba39953e7bb/download/pws_nm.geojson")
+#points - had to manually download polygon file
+nm.sys <- readOGR("C:\\Users\\lap19\\Downloads","nm_pws")
+nm.sys <- spTransform(nm.sys, CRS("+init=epsg:4326")) %>% st_as_sf()
+nm.sys <- nm.sys %>% select(Wt_S_ID, PblcSyN) %>% rename(pwsid = Wt_S_ID, gis_name = PblcSyN) %>% mutate(state = "nm") %>% select(pwsid, gis_name, geometry, state)
+if (FALSE %in% st_is_valid(nm.sys)) {nm.sys <- suppressWarnings(st_buffer(nm.sys[!is.na(st_is_valid(nm.sys)),], 0.0)); print("fixed")}#fix corrupt shapefiles
+#nm has some additional letters in their pwsid and a couple that don't match EPA
+subset(nm.sys, nchar(pwsid) != 9)
+nm.sys <- nm.sys %>% mutate(pwsid = substr(pwsid, 1,9))
+nm.sys <- nm.sys %>% mutate(pwsid = ifelse(gis_name == "SANTA FE SOUTH WATER COOP", "NM3500826", pwsid))
+geojson_write(nm.sys, file = paste0(swd_data, "nm_systems.geojson"))
+
+
+###################################################################################################################################################################
+## INSIDE AND OUTSIDE BOUNDARIES - 
+#####################################################################################################################################################################
+#Intersect the municipal boundaries with the state to create inside and outside
+#simplify a little to avoid a bunch of errors
+nm.muni <- muni %>% filter(state=="nm") #%>% ms_simplify(keep=0.5, keep_shapes=TRUE); simplified earlier to 0.5 in saved file
+nm.rates <- read_excel(paste0(swd_data, "rates_data//rates_nm.xlsx"), sheet="rateTable") %>% filter(other_class=="inside_outside")
+
+#fix corrupt shapfiles
+#New SF package is breaking this:
+nm.muni$geometry <- nm.muni$geometry %>% s2::s2_rebuild() %>% sf::st_as_sfc()
+sf::sf_use_s2(FALSE)
+if (FALSE %in% st_is_valid(nm.muni)) {nm.muni <- suppressWarnings(st_buffer(nm.muni[!is.na(st_is_valid(nm.muni)),], 0.0)); print("fixed")}#fix corrupt shapefiles
+
+#set up loop
+nm.rates <- nm.rates %>% filter(pwsid %in% nm.sys$pwsid); #only keep those that are in the shapefiel
+nm.pwsid <- unique(nm.rates$pwsid)
+all.in.out <- nm.sys %>% filter(pwsid %notin% nm.pwsid) %>% mutate(category = "inside") %>% select(pwsid, gis_name, category, geometry)
+
+for (i in 1:length(nm.pwsid)){
+  #for (i in 101:110){
+  st_erase = all.in.out %>% filter(category == "blank")
+  nm.sel <- nm.sys %>% filter(pwsid==nm.pwsid[i])
+  intmunis <- st_intersection(nm.sel, nm.muni)
+  
+  if(dim(intmunis)[1] > 0){
+    intmunis$muniArea = st_area(intmunis$geometry)
+    inside <- st_union(intmunis) %>% st_sf() 
+    
+    st_erase = st_difference(nm.sel, inside) %>% mutate(category = "outside") %>% select(pwsid, gis_name, category, geometry)
+    st_erase$area = st_area(st_erase$geometry)
+    st_erase <- st_cast(st_erase); #TX2270033 wants to be a GEOMETRYCOLLECTION
+    
+    if(dim(st_erase)[1] > 0) {
+      st_union <- inside %>% mutate(pwsid = nm.pwsid[i], gis_name = nm.sel$gis_name[1], category = "inside") %>% select(pwsid, gis_name, category, geometry)
+      st_union$area = st_area(st_union$geometry)
+      
+      in.out = rbind(st_erase, st_union) %>% select(pwsid, gis_name, category, geometry)
+      perOut = 100*(as.numeric(st_erase$area)/(as.numeric(st_erase$area) + as.numeric(st_union$area)))
+      
+      #if outside area is less than 1%, just make all inside
+      if(perOut <= 1){
+        in.out = nm.sel %>% mutate(category="inside") %>% select(pwsid, gis_name, category, geometry)
+      }
+    }
+  }
+  if(dim(st_erase)[1] == 0) {
+    in.out = nm.sel %>% mutate(category="inside") %>% select(pwsid, gis_name, category, geometry)
+  }
+  
+  if(dim(intmunis)[1] == 0){
+    in.out = nm.sel %>% mutate(category="inside") %>% select(pwsid, gis_name, category, geometry)
+  }
+  
+  #rbind to a full database
+  all.in.out <- rbind(all.in.out, in.out)
+  print(i)
+}
+table(all.in.out$category)
+summary(all.in.out)
+
+geojson_write(all.in.out, file = paste0(swd_data, "nm_in_out_systems.geojson"))
+
+leaflet() %>% addProviderTiles("Stamen.TonerLite") %>% 
+  addPolygons(data = all.in.out %>% filter(pwsid %in% nm.pwsid),
+              fillOpacity= 0.6,  fillColor = ifelse(subset(all.in.out, pwsid %in% nm.pwsid)$category=="inside", "blue", "red"), #make sure matches data
+              color="blue",  weight=1,
+              popup=~paste0("pwsid: ", pwsid)) 
+
+rm(all.in.out, nm.sel, nm.sys, intmunis, st_erase, st_union, nm.muni, nm.rates, nm.pwsid, in.out, perOut, inside)
+
+
+
+###################################################################################################################################################################
+#
+# (1) UPDATE UTILITY SPATIAL BOUNDARIES OR ADD NEW STATES: NJ
+#
+####################################################################################################################################################################
+nj.sys <- read_sf("https://opendata.arcgis.com/datasets/00e7ff046ddb4302abe7b49b2ddee07e_13.geojson") %>% st_transform(crs = 4326)
+nj.sys <- nj.sys %>% select(PWID, SYS_NAME, geometry) %>% rename(pwsid = PWID, gis_name = SYS_NAME) %>% mutate(state = "nj") %>% select(pwsid, gis_name, geometry, state)
+if (FALSE %in% st_is_valid(nj.sys)) {nj.sys <- suppressWarnings(st_buffer(nj.sys[!is.na(st_is_valid(nj.sys)),], 0.0)); print("fixed")}#fix corrupt shapefiles
+geojson_write(nj.sys, file = paste0(swd_data, "nj_systems.geojson"))
+
+#All of NJ is a municipality so no inside / outside rates
 
 
 ###################################################################################################################################################################
