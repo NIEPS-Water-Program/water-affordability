@@ -1879,6 +1879,8 @@
 "KS2009104","Johnson County RWD 7","Johnson County RWD 7","Johnson County RWD 7",2021-01-01,"2021","septic/on-site","not found",2021,3
 "KS2009106","Gardner City","Gardner City","Gardner City",2021-02-01,"2021","drinking water","https://www.gardnerkansas.gov/home/showpublisheddocument/9462/637468404341930000",2021,1
 "KS2009106","Gardner City","Gardner City","Gardner City",2021-02-01,"2021","wastewater","https://www.gardnerkansas.gov/home/showpublisheddocument/9462/637468404341930000",2021,2
+"KS2009110","Water District 1 of Johnson County","Overland Park","Water District 1 of Johnson County",2021-01-01,"2021","drinking water","https://www.waterone.org/your-water/rates-charges",2021,1
+"KS2009110","Water District 1 of Johnson County","Overland Park","Johnson County Wastewater",2021-01-01,"2021","wastewater","https://www.jocogov.org/dept/wastewater/customer-service/residential-billing",2021,2
 "KS2009115","Olathe City","Olathe City","Olathe City",2021-01-01,"2021","drinking water","https://www.olatheks.org/government/utilities/utility-account-services/utility-charges",2021,1
 "KS2009115","Olathe City","Olathe City","Olathe City",2021-01-01,"2021","wastewater","https://www.olatheks.org/government/utilities/utility-account-services/utility-charges",2021,2
 "KS2009115","Olathe City","Olathe City","Olathe City",2020-08-18,"2020","stormwater","https://www.olatheks.org/government/utilities/utility-account-services/utility-charges",2021,4
@@ -1914,7 +1916,7 @@
 "KS2010305","Leavenworth County RWD 6","Leavenworth County RWD 6","Leavenworth County RWD 6",2021-01-01,"2021","septic/on-site","not found",2021,3
 "KS2010306","Tonganoxie City","Tonganoxie City","Tonganoxie City",2020-02-01,"2020","drinking water","https://www.tonganoxie.org/departments/utilities",2021,1
 "KS2010306","Tonganoxie City","Tonganoxie City","Tonganoxie City",2020-02-01,"2020","wastewater","https://www.tonganoxie.org/departments/utilities",2021,2
-"KS2010308","Leavenworth County RWD 9","Leavenworth County RWD 9","Leavenworth County RWD 9",2021-02-24,"2021","drinking water","https://lvrwd9.com/news-detail?item_id=18765",2021,1
+"KS2010308","Leavenworth County RWD 9","Leavenworth County RWD 9","Leavenworth County RWD 9",2021-02-24,"2021","drinking water","Ordinance_-374A-Sewer_Fees_79.pdf (cityofolpe.com)",2021,1
 "KS2010308","Leavenworth County RWD 9","Leavenworth County RWD 9","Leavenworth County RWD 9",2021-01-01,"2021","septic/on-site","not found",2021,3
 "KS2010309","Leavenworth County RWD 8","Leavenworth County RWD 8","Leavenworth County RWD 8",2021-01-01,"2021","drinking water","http://www.rwd8lv.com/rates---payment.html",2021,1
 "KS2010309","Leavenworth County RWD 8","Leavenworth County RWD 8","Leavenworth County RWD 8",2021-01-01,"2021","septic/on-site","not found",2021,3
