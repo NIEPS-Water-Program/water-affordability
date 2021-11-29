@@ -31,14 +31,6 @@ package.check <- lapply(
 #New SF package creates problems
 sf::sf_use_s2(FALSE)
 
-#library(rstudioapi); #used to set working directory
-#library(readxl); #in tidyverse
-#library(sf); library(rgdal); library(spData); library(raster); library(leaflet); #used to work with different types of spatial data
-#library(rmapshaper); library(geojsonio)
-#library(tidycensus); #requires a personal api to access census data
-#library(jsonlite); library(rvest); library(purrr); library(httr); #used with apis, jsons, etc
-#library(tidyverse); library(lubridate); library(plotly);  library(stringr);  #used to work with tables, dates, etc
-
 
 options(scipen=999) #changes scientific notation to numeric
 rm(list=ls()) #removes anything stored in memory
@@ -64,12 +56,12 @@ folder.year <- 2021;
 
 swd_data <- paste0("data_",folder.year,"\\")
 swd_results <- paste0("results_",folder.year,"\\")
-swd_html <- paste0("www_expand\\data\\")
+swd_html <- paste0("www\\data\\")
 
 
 
 #census api key -
-census_api_key("95ed45e11e89f232bfc54d2541f31858c8cfbf9e", install=TRUE, overwrite=TRUE); #LAUREN REMEMBER TO DELETE MY API KEY
+census_api_key("YOUR CENSUS KEY HERE", install=TRUE, overwrite=TRUE); 
 readRenviron("~/.Renviron")
 
 #useful function
