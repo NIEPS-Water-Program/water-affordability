@@ -18,20 +18,23 @@
 muni <- read_sf("https://opendata.arcgis.com/datasets/d8e6e822e6b44d80b4d3b5fe7538576d_0.geojson");
 #reduce to states of interest
 muni <-  muni %>% filter(STFIPS %in% state.fips) %>% select(NAME, CLASS, STFIPS, PLACEFIPS, SQMI, geometry) %>% rename(city_name = NAME) %>% st_transform(crs = 4326) 
-muni <- muni %>% mutate(state = ifelse(STFIPS == "06", "ca", ifelse(STFIPS == "41", "or", ifelse(STFIPS == "35", "nm", "hold"))))
+muni <- muni %>% mutate(state = ifelse(STFIPS == "06", "ca", ifelse(STFIPS == "41", "or", ifelse(STFIPS == "35", "nm", ifelse(STFIPS == "20", "ks",
+                                ifelse(STFIPS == "53", "wa","hold"))))))
 
 #or systems are based on municipality
 muni.or <- muni %>% filter(state=="or")
 muni.nm <- muni %>% filter(state=="nm")
+muni.ks <- muni %>% filter(state=="ks")
+muni.wa <- muni %>% filter(state=="wa")
 geojson_write(muni.or, file = paste0(swd_data, folder.year, "\\or_systems.geojson"))
-
 
 #look to see if CA, PA, TX, or NC have their own municipal boundaries datasets. Prefer to use states when can.
 #CA
-ca.muni <- read_sf("https://opendata.arcgis.com/datasets/35487e8c86644229bffdb5b0a4164d85_0.geojson")
+ca.muni <- read_sf("https://opendata.arcgis.com/datasets/35487e8c86644229bffdb5b0a4164d85_0.geojson"); #dataset is gone ... only found TIGER files so use above
 #remove unincorporated areas
-ca.muni <- ca.muni %>% filter(CITY != "Unincorporated") %>% st_transform(crs = 4326) %>% select(CITY, geometry) %>% rename(city_name = CITY) %>% mutate(state="ca")
-  mapview::mapview(ca.muni)
+#ca.muni <- ca.muni %>% filter(CITY != "Unincorporated") %>% st_transform(crs = 4326) %>% select(CITY, geometry) %>% rename(city_name = CITY) %>% mutate(state="ca")
+ca.muni <- muni %>% filter(state=="ca")
+mapview::mapview(ca.muni)
 
 #PA, the url works but geojson_read and sf_read do not work directly. Therefore need to temporarily download and read in
 tmp <- tempfile()
@@ -40,23 +43,35 @@ pa.muni <- read_sf(tmp) %>% st_transform(crs = 4326) %>% select(MUNICIPAL1, geom
   mapview::mapview(pa.muni)
 
 #NC
-nc.muni <- read_sf("https://opendata.arcgis.com/datasets/ee098aeaf28d44138d63446fbdaac1ee_0.geojson") %>% st_transform(crs = 4326) %>% select(MunicipalBoundaryName, geometry) %>% 
+nc.muni <- read_sf("https://opendata.arcgis.com/datasets/ee098aeaf28d44138d63446fbdaac1ee_0.geojson") %>% st_transform(crs = 4326) %>% 
+  select(MunicipalBoundaryName, geometry) %>% 
   rename(city_name = MunicipalBoundaryName) %>% mutate(state="nc")
   mapview::mapview(nc.muni)
 
 #TX
-tx.muni <- read_sf("https://opendata.arcgis.com/datasets/09cd5b6811c54857bd3856b5549e34f0_0.geojson") %>% st_transform(crs = 4326) %>% select(CITY_NM, geometry) %>% rename(city_name = CITY_NM) %>% mutate(state="tx")
+tx.muni <- read_sf("https://opendata.arcgis.com/datasets/09cd5b6811c54857bd3856b5549e34f0_0.geojson") %>% st_transform(crs = 4326) %>% 
+  select(CITY_NM, geometry) %>% rename(city_name = CITY_NM) %>% mutate(state="tx")
   mapview::mapview(tx.muni)
 
 #NJ
-nj.muni <- read_sf("https://opendata.arcgis.com/datasets/3d5d1db8a1b34b418c331f4ce1fd0fef_2.geojson") %>% st_transform(crs = 4326) %>% select(NAME, geometry) %>% rename(city_name = NAME) %>% mutate(state="nj")
+nj.muni <- read_sf("https://opendata.arcgis.com/datasets/3d5d1db8a1b34b418c331f4ce1fd0fef_2.geojson") %>% st_transform(crs = 4326) %>% 
+  select(NAME, geometry) %>% rename(city_name = NAME) %>% mutate(state="nj")
   mapview::mapview(nj.muni)
+
+#CT - https://ct-deep-gis-open-data-website-ctdeep.hub.arcgis.com/datasets/CTDEEP::town-polygon/about
+ct.muni <- read_sf("https://opendata.arcgis.com/datasets/df1f6d681b7e41dca8bdd03fc9ae0dd6_1.geojson") %>% st_transform(crs = 4326) %>% 
+  select(TOWN, geometry) %>% rename(city_name = TOWN) %>% mutate(state="ct")
+  mapview::mapview(ct.muni)
   
+#KS - did not see anything recent
+#WA - provide cities... not towns, ect. so using municipal boundaries for now
+    
 
 #bind state munis together and save into affordability data folder
-muni <-  muni %>% filter(state == "or" | state == "nm") %>% select(city_name, geometry, state) #only keep those states where another spatial file for municipal boundaries was not found
-muni <- rbind(muni, ca.muni, pa.muni, nc.muni, tx.muni, nj.muni); 
-
+muni <-  muni %>% filter(state != "hold" ) %>% select(city_name, geometry, state) #only keep those states where another spatial file for municipal boundaries was not found
+muni <- rbind(muni, pa.muni, nc.muni, tx.muni, nj.muni, ct.muni); 
+table(muni$state)
+mapview::mapview(muni)
 
 all.muni <- muni %>% ms_simplify(keep=0.5, keep_shapes=TRUE); #simplify shapefiles a little (helps st_intersetion to work better)
 geojson_write(all.muni, file = paste0(swd_data, "muni.geojson"))
@@ -75,9 +90,8 @@ county <- get_acs(geography = "county", variables = "B01001_001E", state = state
 #pull out state variables
 county <- county %>% mutate(state_fips = substr(GEOID,0,2)) %>% select(GEOID, NAME, state_fips, geometry)
 #create name - remove anything before "County"... or before ","
-county <- county %>% mutate(name = gsub("(.*),.*", "\\1", NAME)) %>% mutate(name = substr(name,0,(nchar(name)-7))) %>% 
-  mutate(state = ifelse(state_fips=="48", "tx", ifelse(state_fips=="06", "ca", ifelse(state_fips=="41", "or", ifelse(state_fips=="37", "nc", ifelse(state_fips=="42", "pa", 
-                 ifelse(state_fips=="34", "nj", ifelse(state_fips=="35", "nm", "uh-oh")))))))) %>% select(-NAME, -state_fips)
+county <- county %>% mutate(name = gsub("(.*),.*", "\\1", NAME)) %>% mutate(name = substr(name,0,(nchar(name)-7))) 
+county <- merge(county, state.df, by.x="state_fips", by.y="state.fips") %>% select(-NAME, -state_fips) %>% rename(state = state.list)
 table(county$state)
 #county <- county %>% ms_simplify(keep=0.45, keep_shapes=TRUE)
 geojson_write(county, file = paste0(swd_data, "county.geojson"))
@@ -88,7 +102,8 @@ leaflet() %>% addProviderTiles("Stamen.TonerLite") %>%
 
 state <- get_acs(geography = "state", variables = "B01001_001E", year = selected.year, geometry=TRUE) %>% st_transform(crs= 4326)
 state <- state %>% select(GEOID, NAME, geometry) %>% rename(geoid = GEOID, name = NAME)
-state <- state %>% mutate(data = ifelse(geoid %in% state.fips, "yes", "no")) %>% mutate(data = ifelse(name %in% c("Oregon", "New Mexico"), "muni", data))
+state <- state %>% mutate(data = ifelse(geoid %in% state.fips, "yes", "no")) %>% mutate(data = ifelse(name %in% c("Oregon"), "muni", data))
+table(state$data)
 geojson_write(state, file = paste0(swd_data, "state.geojson"))
 
 

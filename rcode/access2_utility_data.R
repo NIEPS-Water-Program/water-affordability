@@ -389,6 +389,23 @@ geojson_write(nj.sys, file = paste0(swd_data, "nj_systems.geojson"))
 
 ###################################################################################################################################################################
 #
+# (1) UPDATE UTILITY SPATIAL BOUNDARIES OR ADD NEW STATES: CT
+#
+####################################################################################################################################################################
+#All of CT is a municipality so no inside/outside rates
+#CT systems - https://portal.ct.gov/DPH/Drinking-Water/DWS/Public-Water-Supply-Map
+ct.sys <- readOGR("C:\\Users\\lap19\\Downloads\\Buffered_Community_PWS_Service_Areas", "Buffered_Community_PWS_Service_Areas") %>% 
+  spTransform(ct.sys, CRS("+init=epsg:4326")) %>% st_as_sf()
+
+ct.sys <- read_sf("new_states/ct_systems.geojson")
+ct.sys <- ct.sys  %>% select(pwsid, pws_name) %>% rename(gis_name = pws_name)
+if (FALSE %in% st_is_valid(ct.sys)) {ct.sys <- suppressWarnings(st_buffer(ct.sys[!is.na(st_is_valid(ct.sys)),], 0.0)); print("fixed")}#fix corrupt shapefiles
+geojson_write(ct.sys, file=paste0(swd_data, "ct_systems.geojson"))
+
+rm(ct.sys)
+
+###################################################################################################################################################################
+#
 # (1) UPDATE UTILITY SPATIAL BOUNDARIES OR ADD NEW STATES: PA & OR --> NO INSIDE OR OUTSIDE
 #
 ####################################################################################################################################################################
@@ -412,4 +429,194 @@ geojson_write(or.sys, file = paste0(swd_data, "or_systems.geojson"))
 
 
 rm(tmp, pa.sys, or.sys, or.rates)
+
+
+
+###################################################################################################################################################################
+#
+# (1) UPDATE UTILITY SPATIAL BOUNDARIES OR ADD NEW STATES: KS
+#
+####################################################################################################################################################################
+#ks.sys <- read_sf("https://services.kansasgis.org/arcgis15/rest/services/admin_boundaries/KS_RuralWaterDistricts/MapServer")
+ks.sys <- readOGR("C://Users//lap19//Documents//GIS//Utilities//KS","PWS_bnd_2021_0430")
+ks.sys <- spTransform(ks.sys, CRS("+init=epsg:4326")) %>% st_as_sf()
+ks.sys <- ks.sys  %>% select(FED_ID, NAMEWCPSTA) %>% rename(pwsid = FED_ID, gis_name = NAMEWCPSTA)
+if (FALSE %in% st_is_valid(ks.sys)) {ks.sys <- suppressWarnings(st_buffer(ks.sys[!is.na(st_is_valid(ks.sys)),], 0.0)); print("fixed")}#fix corrupt shapefiles
+geojson_write(ks.sys, file=paste0(swd_data, "ks_systems.geojson"))
+
+
+#simplify a little to avoid a bunch of errors
+ks.muni <- muni %>% filter(state=="ks") #%>% ms_simplify(keep=0.5, keep_shapes=TRUE); simplified earlier to 0.5 in saved file
+ks.rates <- read_excel(paste0(swd_data, "rates_data//rates_ks.xlsx"), sheet="rateTable") %>% filter(other_class=="inside_outside")
+
+#fix corrupt shapfiles
+ks.muni$geometry <- ks.muni$geometry %>% s2::s2_rebuild() %>% sf::st_as_sfc()
+sf::sf_use_s2(FALSE)
+if (FALSE %in% st_is_valid(ks.muni)) {ks.muni <- suppressWarnings(st_buffer(ks.muni[!is.na(st_is_valid(ks.muni)),], 0.0)); print("fixed")}#fix corrupt shapefiles
+
+#set up loop
+ks.rates <- ks.rates %>% filter(pwsid %in% ks.sys$pwsid); #only keep those that are in the shapefiel
+ks.pwsid <- unique(ks.rates$pwsid)
+all.in.out <- ks.sys %>% filter(pwsid %notin% ks.pwsid) %>% mutate(category = "inside") %>% select(pwsid, gis_name, category, geometry)
+
+for (i in 1:length(ks.pwsid)){
+  #for (i in 101:110){
+  st_erase = all.in.out %>% filter(category == "blank")
+  ks.sel <- ks.sys %>% filter(pwsid==ks.pwsid[i])
+  intmunis <- st_intersection(ks.sel, ks.muni)
+  
+  if(dim(intmunis)[1] > 0){
+    intmunis$muniArea = st_area(intmunis$geometry)
+    inside <- st_union(intmunis) %>% st_sf() 
+    
+    st_erase = st_difference(ks.sel, inside) %>% mutate(category = "outside") %>% select(pwsid, gis_name, category, geometry)
+    st_erase$area = st_area(st_erase$geometry)
+    st_erase <- st_cast(st_erase); 
+    
+    if(dim(st_erase)[1] > 0) {
+      st_union <- inside %>% mutate(pwsid = ks.pwsid[i], gis_name = ks.sel$gis_name[1], category = "inside") %>% select(pwsid, gis_name, category, geometry)
+      st_union$area = st_area(st_union$geometry)
+      
+      in.out = rbind(st_erase, st_union) %>% select(pwsid, gis_name, category, geometry)
+      perOut = 100*(as.numeric(st_erase$area)/(as.numeric(st_erase$area) + as.numeric(st_union$area)))
+      
+      #if outside area is less than 1%, just make all inside
+      if(perOut <= 1){
+        in.out = ks.sel %>% mutate(category="inside") %>% select(pwsid, gis_name, category, geometry)
+      }
+    }
+  }
+  if(dim(st_erase)[1] == 0) {
+    in.out = ks.sel %>% mutate(category="inside") %>% select(pwsid, gis_name, category, geometry)
+  }
+  
+  if(dim(intmunis)[1] == 0){
+    in.out = ks.sel %>% mutate(category="inside") %>% select(pwsid, gis_name, category, geometry)
+  }
+  
+  #rbind to a full database
+  all.in.out <- rbind(all.in.out, in.out)
+  print(i)
+}
+table(all.in.out$category)
+summary(all.in.out)
+
+geojson_write(all.in.out, file = paste0(swd_data, "ks_in_out_systems.geojson"))
+
+leaflet() %>% addProviderTiles("Stamen.TonerLite") %>% 
+  addPolygons(data = all.in.out %>% filter(pwsid %in% ks.pwsid),
+              fillOpacity= 0.6,  fillColor = ifelse(subset(all.in.out, pwsid %in% ks.pwsid)$category=="inside", "blue", "red"), #make sure matches data
+              color="blue",  weight=1,
+              popup=~paste0("pwsid: ", pwsid)) 
+
+rm(all.in.out, ks.sel, ks.sys, intmunis, st_erase, st_union, ks.muni, ks.rates, ks.pwsid, in.out, perOut, inside)
+
+
+
+
+
+###################################################################################################################################################################
+#
+# (1) UPDATE UTILITY SPATIAL BOUNDARIES OR ADD NEW STATES: WA
+#
+####################################################################################################################################################################
+#https://www.doh.wa.gov/DataandStatisticalReports/DataSystems/GeographicInformationSystem/DownloadableDataSets
+#https://fortress.wa.gov/doh/base/gis/ServiceAreas.zip
+# Download the shapefile. (note that I store it in a folder called DATA. You have to change that if needed.)
+download.file("https://fortress.wa.gov/doh/base/gis/ServiceAreas.zip" , destfile="C://Users//lap19//Downloads//ServiceAreas.zip")
+# You now have it in your current working directory, have a look!
+# Unzip this file. You can do it with R (as below), or clicking on the object you downloaded.
+wa.sys <- readOGR("C://Users//lap19//Documents//WaterUtilities//UtilityData//WA", "wa_systems")
+wa.sys <- spTransform(wa.sys, CRS("+init=epsg:4326")) %>% st_as_sf()
+wa.sys <- wa.sys %>% select(WS_Name, WS_ID, OwnerID, Total_Conn, WS_Status, WS_Type)
+#st_geometry(wa.sys) <- NULL;
+#write.csv(wa.sys, "new_states/wa_systems_match_all.csv")
+
+#washington does not have pwsid's. Manually linked rates pwsid to values in this shapefile and municipal shapefile. Then merged together.
+wa.muni <- muni %>% filter(state=="wa")
+wa.rates <- read_excel(paste0(swd_data, "rates_data\\rates_wa.xlsx"), sheet="PWSID_to_Shapefile")
+wa.sys2 <- merge(wa.sys, wa.rates, by.x="WS_ID", by.y="WS_ID") %>% select(pwsid, service_area, geometry)
+wa.sys3 <- merge(wa.muni, wa.rates, by.x="city_name", by.y="MUNI_Name") %>% select(pwsid, service_area, geometry)
+
+wa.sys <- rbind(wa.sys2, wa.sys3)
+#group duplicates
+wa.sys <- wa.sys %>% group_by(pwsid, service_area) %>% summarize(n=n())
+#clark public utilities is duplicated with Clark Public - Utilities - Amboy
+wa.sys <- wa.sys %>% select(-n) %>% filter(pwsid != "WA5304625") %>% rename(gis_name = service_area)
+
+if (FALSE %in% st_is_valid(wa.sys)) {wa.sys <- suppressWarnings(st_buffer(wa.sys[!is.na(st_is_valid(wa.sys)),], 0.0)); print("fixed")}#fix corrupt shapefiles
+geojson_write(wa.sys, file=paste0(swd_data, "wa_systems.geojson"))
+
+#fix corrupt shapfiles
+wa.muni$geometry <- wa.muni$geometry %>% s2::s2_rebuild() %>% sf::st_as_sfc()
+if (FALSE %in% st_is_valid(wa.muni)) {wa.muni <- suppressWarnings(st_buffer(wa.muni[!is.na(st_is_valid(wa.muni)),], 0.0)); print("fixed")}#fix corrupt shapefiles
+wa.rates <- read_excel(paste0(swd_data, "rates_data//rates_wa.xlsx"), sheet="rateTable") %>% filter(other_class=="inside_outside")
+
+#set up loop
+wa.rates <- wa.rates %>% filter(pwsid %in% wa.sys$pwsid); #only keep those that are in the shapefiel
+wa.pwsid <- unique(wa.rates$pwsid)
+all.in.out <- wa.sys %>% filter(pwsid %notin% wa.pwsid) %>% mutate(category = "inside") %>% select(pwsid, gis_name, category, geometry)
+
+for (i in 1:length(wa.pwsid)){
+  #for (i in 101:110){
+  st_erase = all.in.out %>% filter(category == "blank")
+  wa.sel <- wa.sys %>% filter(pwsid==wa.pwsid[i])
+  intmunis <- st_intersection(wa.sel, wa.muni)
+  
+  if(dim(intmunis)[1] > 0){
+    intmunis$muniArea = st_area(intmunis$geometry)
+    inside <- st_union(intmunis) %>% st_sf() 
+    
+    st_erase = st_difference(wa.sel, inside) %>% mutate(category = "outside") %>% select(pwsid, gis_name, category, geometry)
+    st_erase$area = st_area(st_erase$geometry)
+    st_erase <- st_cast(st_erase); 
+    
+    if(dim(st_erase)[1] > 0) {
+      st_union <- inside %>% mutate(pwsid = wa.pwsid[i], gis_name = wa.sel$gis_name[1], category = "inside") %>% select(pwsid, gis_name, category, geometry)
+      st_union$area = st_area(st_union$geometry)
+      
+      in.out = rbind(st_erase, st_union) %>% select(pwsid, gis_name, category, geometry)
+      perOut = 100*(as.numeric(st_erase$area)/(as.numeric(st_erase$area) + as.numeric(st_union$area)))
+      
+      #if outside area is less than 1%, just make all inside
+      if(perOut <= 1){
+        in.out = wa.sel %>% mutate(category="inside") %>% select(pwsid, gis_name, category, geometry)
+      }
+    }
+  }
+  if(dim(st_erase)[1] == 0) {
+    in.out = wa.sel %>% mutate(category="inside") %>% select(pwsid, gis_name, category, geometry)
+  }
+  
+  if(dim(intmunis)[1] == 0){
+    in.out = wa.sel %>% mutate(category="inside") %>% select(pwsid, gis_name, category, geometry)
+  }
+  
+  #rbind to a full database
+  all.in.out <- rbind(all.in.out, in.out)
+  print(i)
+}
+table(all.in.out$category)
+summary(all.in.out)
+
+st_geometry_type(all.in.out)
+#drop line geometry
+all.in.out <- all.in.out %>% filter(st_geometry_type(all.in.out) != "LINESTRING")
+
+geojson_write(all.in.out, file = paste0(swd_data, "wa_in_out_systems.geojson"))
+
+leaflet() %>% addProviderTiles("Stamen.TonerLite") %>% 
+  addPolygons(data = all.in.out %>% filter(pwsid %in% wa.pwsid),
+              fillOpacity= 0.6,  fillColor = ifelse(subset(all.in.out, pwsid %in% wa.pwsid)$category=="inside", "blue", "red"), #make sure matches data
+              color="blue",  weight=1,
+              popup=~paste0("pwsid: ", pwsid)) 
+
+rm(all.in.out, wa.sel, wa.sys, intmunis, st_erase, st_union, wa.muni, wa.rates, wa.pwsid, wa.sys2, wa.sys3, in.out, perOut, inside)
+
+
+
+
+
+
+
 

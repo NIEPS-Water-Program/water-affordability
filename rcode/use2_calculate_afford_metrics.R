@@ -10,36 +10,23 @@
 #   VARIABLES THAT NEED TO BE CHANGED OVER TIME
 #
 ######################################################################################################################################################################
-#federal minimum wage ---------------------------------------------------------------------------------------------------------------------------------
 #set up by state wages
-n_states = length(state.list)
-year  <- rep(seq(1979, folder.year,1),n_states)
-state <- c(rep("ca", length(year)/n_states), rep("nc", length(year)/n_states), rep("pa", length(year)/n_states), 
-           rep("tx", length(year)/n_states), rep("or", length(year)/n_states), rep("nm", length(year)/n_states),
-           rep("nj", length(year)/n_states))
-#state min wages
-ca.wage <- c(2.9, 3.1, 3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35, 3.8, 4.25,4.25,4.25,4.25,4.25, 4.75, 5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15, 
-             5.85, 6.55, 7.25,7.25,7.25,7.25,7.25,7.25,7.25,7.25,10.50,11,12,12, 13); 
-#these use federal min wage
-nc.wage <- pa.wage <- tx.wage <- c(2.9, 3.1, 3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35, 3.8, 4.25,4.25,4.25,4.25,4.25, 4.75, 5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15, 
-                                   5.85, 6.55, 7.25,7.25,7.25,7.25,7.25,7.25,7.25,7.25,7.25,7.25,7.25, 7.25, 7.25)
+min.wage <- read_excel(paste0(swd_data, "rates_data\\rates_", state.list[1], ".xlsx"), sheet="ratesMetadata")
+for (i in 2:length(state.list)){
+  zt <- read_excel(paste0(swd_data, "rates_data\\rates_", state.list[i], ".xlsx"), sheet="ratesMetadata")
+  if(state.list[i] == "or"){ zt <- zt %>% select(-GEOID) }
+  if (state.list[i] == "nc"){
+    zt <- zt %>% mutate(pwsid = paste0("NC",str_remove_all(pwsid, "[-]"))) %>% 
+      filter(nchar(pwsid) == 9) %>% filter(pwsid != "NC Aqua NC") %>% filter(pwsid != "NCBayboro")
+  }
+  zt <- zt[,c(1:16)]
+  min.wage <- rbind(min.wage, zt);
+  rm(zt)
+}
+min.wage <- min.wage %>% select(pwsid, service_area, service_type, last_updated, min_wage, min_year) %>% 
+  group_by(pwsid, service_area) %>% filter(service_type == "water") %>% filter(last_updated == max(last_updated)) %>% select(-service_type, -last_updated) %>% distinct()
+table(substr(min.wage$pwsid,1,2))
 
-#or minimum wage
-or.wage <- c(2.9, 3.1, 3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.80, 4.25, 4.75,4.75,4.75,4.75,4.75, 4.75, 5.50,6.00,6.50,6.50,6.50,6.90,7.05,7.25,7.50, 
-             7.80, 7.95, 8.40, 8.40,8.50,8.80,8.95,9.10,9.25,9.25,9.75,10.25,10.75,11.25, 12, 12.75)
-
-#nm minimum wage
-nm.wage <- c(2.9, 3.1, 3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35,3.35, 3.8, 4.25,4.25,4.25,4.25,4.25, 4.75, 5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,5.15,
-             5.85, 6.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 7.50, 9.00, 10.50)
-
-#nj minimum wage
-nj.wage <- c(2.9, 3.1, 3.35, 3.35, 3.35, 3.35, 3.35, 3.35, 3.35, 3.35, 3.35, 3.80, 4.25, 5.05, 5.05, 5.05, 5.05, 5.05, 5.05, 5.05, 5.15, 5.15,
-             5.15, 5.15, 5.15, 5.15, 6.15, 7.15, 7.15, 7.15,  7.25, 7.25, 7.25, 7.25, 7.25, 8.25, 8.38, 8.38, 8.44, 8.6, 10.00, 11.00, 12.00)
-
-all.wage <- c(ca.wage, nc.wage, pa.wage, tx.wage, or.wage, nm.wage, nj.wage)
-#combine together - order does matter
-min.wage <- cbind(state, year, all.wage) %>% as.data.frame() %>% mutate(year = as.numeric(year), all.wage = as.numeric(all.wage))
-rm(list=c('year', 'state', 'n_states', 'ca.wage', 'pa.wage', 'nc.wage', 'or.wage', 'tx.wage', 'nm.wage', 'nj.wage', 'all.wage'))
 
 # block intersection variables
 percent.area.threshold <- 0.1; #set very low to make sure block group seleted
@@ -87,10 +74,12 @@ tx.systems <- read_sf(paste0(swd_data, "tx_in_out_systems.geojson")) %>%   mutat
 or.systems <- read_sf(paste0(swd_data, "or_systems.geojson")) %>% mutate(systemarea = st_area(geometry)) %>% mutate(category = "inside", state="or") %>% select(pwsid, gis_name, category, geometry, systemarea, state)
 nm.systems <- read_sf(paste0(swd_data, "nm_in_out_systems.geojson")) %>% mutate(systemarea = st_area(geometry)) %>% mutate(state="nm")
 nj.systems <- read_sf(paste0(swd_data, "nj_systems.geojson")) %>% mutate(systemarea = st_area(geometry)) %>% mutate(category = "inside", state="nj") %>% select(pwsid, gis_name, category, geometry, systemarea, state); #not inside/outside because all municipal
+ct.systems <- read_sf(paste0(swd_data, "ct_systems.geojson")) %>% mutate(systemarea = st_area(geometry)) %>% mutate(category = "inside", state="ct") %>% select(pwsid, gis_name, category, geometry, systemarea, state); #not inside/outside because all municipal
+ks.systems <- read_sf(paste0(swd_data, "ks_in_out_systems.geojson")) %>%   mutate(systemarea = st_area(geometry)) %>% mutate(state="ks")
+wa.systems <- read_sf(paste0(swd_data, "wa_in_out_systems.geojson")) %>%   mutate(systemarea = st_area(geometry)) %>% mutate(state="wa")
 
-
-gis.systems <- rbind(ca.systems, nc.systems, pa.systems, tx.systems, or.systems, nm.systems, nj.systems)
-rm(ca.systems, nc.systems, pa.systems, tx.systems, or.systems, nm.systems, nj.systems)
+gis.systems <- rbind(ca.systems, nc.systems, pa.systems, tx.systems, or.systems, nm.systems, nj.systems, ct.systems, ks.systems, wa.systems)
+rm(ca.systems, nc.systems, pa.systems, tx.systems, or.systems, nm.systems, nj.systems, ct.systems, ks.systems, wa.systems)
 
 #load census block group shapefiles -------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 bk.group <- read_sf(paste0(swd_data, "block_groups_", selected.year,".geojson")) %>% mutate(area = st_area(geometry))
@@ -313,11 +302,15 @@ nc.meta <- read_excel(paste0(swd_data, "rates_data\\rates_nc.xlsx"), sheet="rate
 tx.meta <- read_excel(paste0(swd_data, "rates_data\\rates_tx.xlsx"), sheet="rateTable") %>% mutate(state = "tx")
 nm.meta <- read_excel(paste0(swd_data, "rates_data\\rates_nm.xlsx"), sheet="rateTable") %>% mutate(state = "nm")
 nj.meta <- read_excel(paste0(swd_data, "rates_data\\rates_nj.xlsx"), sheet="rateTable") %>% mutate(state = "nj")
-rates.meta <- rbind(or.meta, ca.meta, pa.meta, nc.meta, tx.meta, nm.meta, nj.meta) %>% filter(update_bill == "yes") %>% select(pwsid) %>% distinct() ; #filter is optional
+ct.meta <- read_excel(paste0(swd_data, "rates_data\\rates_ct.xlsx"), sheet="rateTable") %>% mutate(state = "ct")
+ks.meta <- read_excel(paste0(swd_data, "rates_data\\rates_ks.xlsx"), sheet="rateTable") %>% mutate(state = "ks")
+wa.meta <- read_excel(paste0(swd_data, "rates_data\\rates_wa.xlsx"), sheet="rateTable") %>% mutate(state = "wa")
+rates.meta <- rbind(or.meta, ca.meta, pa.meta, nc.meta, tx.meta, nm.meta, nj.meta, ct.meta, ks.meta, wa.meta) %>% 
+  filter(update_bill == "yes") %>% select(pwsid) %>% distinct() ; #filter is optional
 
 rates.pwsid <- rates.meta$pwsid
 update.list <- rates.pwsid
-rm(ca.meta, or.meta, pa.meta, nc.meta, tx.meta, nm.meta, nj.meta)
+rm(ca.meta, or.meta, pa.meta, nc.meta, tx.meta, nm.meta, nj.meta, ct.meta, ks.meta, wa.meta)
 ##############################################################################################################################
 
 #shapefile problems for the following nc: NC0161010 shapefile problem, 
@@ -327,18 +320,19 @@ rates.pwsid <- rates.pwsid[rates.pwsid != c("CA3010023")]; #city of Newport Beac
 
 rates.pwsid <- unique(rates.pwsid)
 
-#set up data frames
-all.block.scores <- as.data.frame(matrix(nrow=0, ncol=15)); 
-  colnames(all.block.scores) <- c("GEOID","pwsid", "service_area", "hh_use", "totalpop", "totalhh","perArea", "hhsize", "medianIncome", "income20", "HBI","PPI","burden","TRAD", "hhbelow45")
-all.service.scores <- as.data.frame(matrix(nrow=0, ncol=9)); colnames(all.service.scores) = c("pwsid","service_area", "hh_use","HBI", "PPI","TRAD", "LaborHrsMin","LaborHrsMax","burden")
-all.cost.to.bill <- as.data.frame(matrix(nrow=0, ncol=8));    colnames(all.cost.to.bill) <- c("pwsid", "service_area", "category", "hh_use","percent_income", "annual_cost", "annual_income", "percent_pays_more")
 
 #set hbi levels for burden
 hbi_mod = 4.6; #4.6% is ~ 1 day of work. AWWA recommended 7%. EPA is considering lower.
 hbi_high = hbi_mod*2; #AWWA recommended 10%
 
+#set up data frames
+all.block.scores <- as.data.frame(matrix(nrow=0, ncol=14)); 
+colnames(all.block.scores) <- c("GEOID","pwsid", "service_area", "hh_use", "totalpop", "totalhh","perArea", "hhsize", "medianIncome", "income20", "HBI","PPI","burden","TRAD")
+all.service.scores <- as.data.frame(matrix(nrow=0, ncol=11)); colnames(all.service.scores) = c("pwsid","service_area", "hh_use","HBI", "PPI","TRAD", "min_wage", "min_year", "LaborHrsMin","LaborHrsMax","burden")
+all.cost.to.bill <- as.data.frame(matrix(nrow=0, ncol=8));    colnames(all.cost.to.bill) <- c("pwsid", "service_area", "category", "hh_use","percent_income", "annual_cost", "annual_income", "percent_pays_more")
+
 for (i in 1:length(rates.pwsid)){
-#for (i in 501:700){
+#for (i in 2801:3000){
   #select utility
   selected.pwsid = as.character(rates.pwsid[i]);
   
@@ -365,9 +359,16 @@ for (i in 1:length(rates.pwsid)){
     print(paste0("No geometry in shapefile for ", selected.pwsid));
     next  
   }
-
+  
   #run intersection function-
   bk.int <- intersect_features(water.system, bk.group); #double counts if inside/outside - weight later
+  #ensure geometry is multipolygon
+  as.data.frame(table(st_geometry_type(bk.int)))
+  
+  if(st_geometry_type(bk.int) == "GEOMETRYCOLLECTION"){
+    bk.int <- st_collection_extract(bk.int, "POLYGON")
+  }
+  bk.int <- st_cast(bk.int, "MULTIPOLYGON")
   selected.bk <- bk.group[bk.group$GEOID %in% bk.int$GEOID,]  #grabs anything that intersects
   #plot_system_map();
   #for very small systems with inside and outside rates (but no muni) - set to inside rates
@@ -444,12 +445,13 @@ list.results <- service_area_method(block.data);
 
  #calculate labor hrs
  state.var <- tolower(substr(service.area.results$pwsid[1],0,2))
- service.area.results <- service.area.results %>% mutate(min_wage = subset(min.wage, year==selected.year & state == state.var)$all.wage)
+ min.df <- min.wage %>% filter(pwsid==selected.pwsid) %>% group_by(pwsid, service_area) %>% summarize(min_wage = mean(min_wage, na.rm=TRUE), min_year = mean(min_year, na.rm=TRUE), .groups="drop")
+ service.area.results <- service.area.results %>% mutate(min_wage = min.df$min_wage, min_year = min.df$min_year)
  wage.cost <- annual.hh.cost %>% spread(category, annual_cost) %>% select(hh_use, inside, outside) %>% mutate(outside = ifelse(outside==0, inside, outside)) %>% 
    mutate(cheap = ifelse(inside <= outside, inside, outside), expense = ifelse(inside <= outside, outside, inside)) %>% select(hh_use, cheap, expense)
  
  service.area.results <- merge(service.area.results, wage.cost, by.x="hh_use", by.y="hh_use", all.x=TRUE)
- service.area.results <- service.area.results %>% mutate(LaborHrsMin = round(cheap/12/min_wage,2), LaborHrsMax = round(expense/12/min_wage,2)) %>% select(-cheap, -expense, -min_wage)
+ service.area.results <- service.area.results %>% mutate(LaborHrsMin = round(cheap/12/min_wage,2), LaborHrsMax = round(expense/12/min_wage,2)) %>% select(-cheap, -expense,)
  
  
  #calculate the cost to bill----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -483,10 +485,14 @@ list.results <- service_area_method(block.data);
 #############################################################################################################################################################################################################################################
 #Block Scores Table
     #Calculate a single score for each block
+    #remove geometry
+    #st_geometry(block.data) <- NULL
+    block.data <- block.data %>% select(-geometry)
     block.scores <- block.data %>% mutate(popArea = round(totalpop * (perArea/100),2)) %>% group_by(GEOID, pwsid, service_area, hh_use) %>% 
       mutate(totalPopArea = round(sum(popArea, na.rm=TRUE),0), popRatio = popArea/totalPopArea, HBIratio = HBI*popRatio, tradRatio = TRAD*popRatio) %>% ungroup()
-    block.scores <- block.scores %>%  group_by(pwsid, GEOID, service_area, hh_use, totalpop, totalhh, hhsize, medianIncome, PPI) %>% 
-      summarize(HBI = round(sum(HBIratio, na.rm=TRUE),2), TRAD = round(sum(tradRatio, na.rm=TRUE),2), perArea = sum(perArea, na.rm=TRUE), income20 = round(mean(quintile20, na.rm=TRUE),0), .groups="drop") %>% 
+    block.scores <- block.scores %>%  group_by(pwsid, GEOID, service_area, hh_use, totalpop, totalhh, hhsize, PPI) %>% 
+      summarize(HBI = round(sum(HBIratio, na.rm=TRUE),2), TRAD = round(sum(tradRatio, na.rm=TRUE),2), perArea = sum(perArea, na.rm=TRUE), 
+                income20 = round(mean(quintile20, na.rm=TRUE),0), medianIncome = round(mean(medianIncome, na.rm=TRUE),0), .groups="drop") %>% 
       mutate(hh_use = as.numeric(as.character(hh_use))) %>% arrange(hh_use)
 
     #reset NAs to zero if needed
@@ -499,7 +505,7 @@ list.results <- service_area_method(block.data);
     all.block.scores <- rbind(all.block.scores, block.scores)
     
 #Service Scores
-    service.area.results <- service.area.results %>% select(pwsid, service_area, hh_use, HBI, PPI, TRAD, LaborHrsMin, LaborHrsMax) %>% arrange(as.numeric(as.character(hh_use))) %>% 
+    service.area.results <- service.area.results %>% arrange(as.numeric(as.character(hh_use))) %>% 
       mutate(burden = ifelse(PPI >= 35 & HBI >= hbi_high, "Very High", ifelse(PPI >=35 & HBI < hbi_high & HBI >= hbi_mod, "High", ifelse(PPI >= 35 & HBI < hbi_mod, "Moderate-High", ifelse(PPI >= 20 & PPI < 35 & HBI >= hbi_high, "High", 
                        ifelse(PPI >=20 & PPI < 35 & HBI >= hbi_mod & HBI < hbi_high, "Moderate-High", ifelse(PPI >=20 & PPI < 35 & HBI < hbi_mod, "Low-Moderate",  ifelse(PPI < 20 & HBI >= hbi_high, "Moderate-High", 
                        ifelse(PPI < 20 & HBI >= hbi_mod & HBI < hbi_high, "Low-Moderate", ifelse(PPI < 20 & HBI < hbi_mod, "Low", "Unknown")))))))))) %>% mutate(burden = ifelse(is.na(burden)==TRUE, "Unknown", burden))
@@ -524,7 +530,19 @@ all.block.scores <- all.block.scores %>% filter(pwsid != "NC2036024")
 summary(all.block.scores); 
 all.block.scores <- all.block.scores %>% mutate(HBI = ifelse(is.infinite(HBI), NA, HBI), TRAD = ifelse(is.infinite(TRAD), NA, TRAD))
 table(as.numeric(as.character(all.block.scores$hh_use)), all.block.scores$burden, useNA="ifany");
+#check to make sure no duplicate block/pwsid combos... duplication was occuring in block groups where census did not provide a median income. Changed grouping above to address.
+xt <- all.block.scores %>% filter(hh_use==4000) 
+xt <- xt %>% mutate(duplicate = duplicated(xt[,1:2]))
+xt %>% filter(duplicate==TRUE)
 
+#two utilities duplicating because of income_20 - almost identical answers... group_by and recalculate burden
+all.block.scores <- all.block.scores %>% group_by(GEOID, pwsid, service_area, hh_use, totalpop, totalhh, perArea, hhsize, medianIncome) %>% 
+  summarize(income20 = round(mean(income20, na.rm=TRUE),0), HBI = round(mean(HBI, na.rm=TRUE),2), PPI = mean(PPI), TRAD = round(mean(TRAD, na.rm=TRUE),2), .groups="drop")
+all.block.scores <- all.block.scores %>% mutate(burden = ifelse(PPI >= 35 & HBI >= hbi_high, "Very High", ifelse(PPI >=35 & HBI < hbi_high & HBI >= hbi_mod, "High", ifelse(PPI >= 35 & HBI < hbi_mod, "Moderate-High", 
+                                                ifelse(PPI >= 20 & PPI < 35 & HBI >= hbi_high, "High", ifelse(PPI >=20 & PPI < 35 & HBI >= hbi_mod & HBI < hbi_high, "Moderate-High", ifelse(PPI >=20 & PPI < 35 & HBI < hbi_mod, "Low-Moderate", 
+                                                ifelse(PPI < 20 & HBI >= hbi_high, "Moderate-High", ifelse(PPI < 20 & HBI >= hbi_mod & HBI < hbi_high, "Low-Moderate", ifelse(PPI < 20 & HBI < hbi_mod, "Low", "Unknown"))))))))))
+all.block.scores <- all.block.scores %>% mutate(burden = ifelse(is.na(burden)==TRUE, "unknown", burden)) %>% 
+  select(GEOID, pwsid, service_area, hh_use, totalpop, totalhh, perArea, hhsize, medianIncome, income20, HBI, PPI, burden, TRAD)
 
 #NOW IF WE WANT TO ONLY UPDATE OR ADD NEW FILES - DO THE FOLLOWING...#####################################################################################################################################
 #spread resrates data (do outside of loop)

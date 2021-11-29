@@ -11,25 +11,7 @@
 #   MERGE CENSUS DATA WITH PWSID AND CALCULATE VALUES
 #
 ######################################################################################################################################################################
-#read files
-pop <- read.csv(paste0(swd_data, "census_time\\bkgroup_pop_time.csv"), colClasses=c("GEOID" = "character")) %>% select(-GISJOIN, -state, -county) %>% mutate(GEOID = ifelse(nchar(GEOID) ==11, paste0("0",GEOID), GEOID))
-age <- read.csv(paste0(swd_data, "census_time\\tract_age.csv"), colClasses=c("GEOID" = "character")) %>% mutate(GEOID = ifelse(nchar(GEOID) ==10, paste0("0",GEOID), GEOID))
-race <- read.csv(paste0(swd_data, "census_time\\tract_race.csv"), colClasses=c("GEOID" = "character")) %>% mutate(GEOID = ifelse(nchar(GEOID) ==10, paste0("0",GEOID), GEOID))
-hh.income <- read.csv(paste0(swd_data,"census_time\\block_group_income.csv"), colClasses=c("GEOID" = "character"))
-build.age <- read.csv(paste0(swd_data, "census_time\\bg_house_age.csv"), colClasses=c("GEOID" = "character"))
-
-cws <- read.csv(paste0(swd_data, "sdwis\\cws_systems.csv")) %>% select(PWSID, POPULATION_SERVED_COUNT) %>% group_by(PWSID) %>% 
-  summarize(POPULATION_SERVED_COUNT = median(POPULATION_SERVED_COUNT, na.rm=TRUE), .groups="drop") %>% distinct(); #for some reason many duplicates in NJ
-
-
-#read in all.block.scores to link GEOID with PWSID
-all.block.scores <- read.csv(paste0(swd_results, "utility_block_scores_", selected.year, ".csv"), colClasses=c("GEOID" = "character")); 
-all.block.scores <- all.block.scores %>% mutate(GEOID = ifelse(nchar(GEOID) ==11, paste0("0",GEOID), GEOID)) %>% #sometimes the 0 is still being left out
-  mutate(tracts = substr(GEOID,0,11), county = substr(GEOID,1,5)) %>% select(pwsid, service_area, GEOID, tracts, county, perArea) %>% distinct()
-#very small systems cannot be weighted. Change to NA.... it seems 15% makes most of the metrics fairly close. Some still are over 100%
-tooSmall <- all.block.scores %>% group_by(pwsid, service_area) %>% summarize(n = n(), totalArea = sum(perArea, na.rm=TRUE), .groups="drop") %>% mutate(keep = ifelse(totalArea >= 15, "keep", "too small"))
-table(tooSmall$keep);
-head(tooSmall %>% filter(keep=="too small" & totalArea>14))
+ 
 
 #Now summarize by groups
 pop <- merge(all.block.scores, pop, by.x="GEOID", by.y="GEOID", all.x=TRUE) %>% distinct()
@@ -176,5 +158,5 @@ summary(bls.20202)
 subset(bls.20202, is.na(date))
 write.csv(bls.20202, paste0(swd_results, "utility_bls_monthly.csv"), row.names=FALSE)
 
-rm(bls.old, bls.recent, bls.2020months, pop, pop2, race, build.age, census.data, county, cws, hh.inc, hh.income, all.block.scores, bls.2020, bls.20202, bls.annual, bls.annual2, age)
+rm(bls.old, bls.recent, bls.2020months, pop, pop2, race, build.age, census.data, all.county, cws, hh.inc, hh.income, all.block.scores, bls.2020, bls.20202, bls.annual, bls.annual2, age)
 

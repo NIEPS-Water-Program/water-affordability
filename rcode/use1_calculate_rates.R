@@ -17,12 +17,15 @@
 res.ft <- 2500; #will replace if vol_base is present... otherwise assume residential household size is 2500 for stormwater
 res.bedrooms = 2; #again, this variable can be changed
 res.person = 3;
+tax.based = 200000; #assume property value = 200000
+percent.impervious = 50; #assume half of lot is impervious
 
 
 #read in rates
 rates <- read_excel(paste0(swd_data, "rates_data\\rates_", state.list[1], ".xlsx"), sheet="rateTable") %>% mutate(state = state.list[1])
 for (i in 2:length(state.list)){
   zt <- read_excel(paste0(swd_data, "rates_data\\rates_", state.list[i], ".xlsx"), sheet="rateTable") %>% mutate(state = state.list[i])
+  
   if (state.list[i] == "nc"){
     zt <- zt %>% mutate(pwsid = paste0("NC",str_remove_all(pwsid, "[-]"))) %>% 
            filter(rate_type != "drought_surcharge" & rate_type != "drought_mandatory_surcharge" & rate_type != "drought_voluntary_surcharge" & rate_type != "conservation_surcharge") %>% 
@@ -46,6 +49,7 @@ res.rates <- rates %>% filter(pwsid %in% update.list$pwsid)
 res.rates <- res.rates %>% mutate_at(c("meter_size", 'value_from', 'value_to', "vol_base", "cost"), as.numeric); #convert to numeric
 #data check
 table(res.rates$bill_frequency, useNA="ifany");    
+#res.rates <- res.rates %>% mutate(rate_type = tolower(rate_type))
 table(res.rates$rate_type, useNA="ifany"); #chck for commodity_charge misspellings and service_charge misspellings... also make sure all others have a "surcharge"
 table(res.rates$vol_unit)
 
@@ -222,7 +226,6 @@ foo <- merge(fixed.charge, volume, by.x=c("pwsid", "service_area", "city_name", 
 summary(foo)
 
 
-
 # calculate zone commodity charges ---------------------------------------------------------------------------------------------------------------------------------
 #volumetric charges - flat - some utilities charge a flat amount if you fall within a tier
 ws.zone <- res.rates %>% filter(volumetric=="zone") %>% mutate(value_from = ifelse(vol_unit=="gallons", value_from, value_from*7.48052), value_to = ifelse(vol_unit=="gallons", value_to, value_to*7.48052))
@@ -236,11 +239,17 @@ for(i in 1:length(unique.pwsid)){
   zt2 = NA;
   for (j in 1:length(gal.month)){
     zt$hh_use <- ifelse(zt$vol_unit=="person", 3, gal.month[j]);
+    zt$hh_use <- ifelse(zt$vol_unit=="tax-based", tax.based, gal.month[j]);
+    zt$hh_use <- ifelse(zt$vol_unit=="percent impervious surface", percent.impervious, gal.month[j]); 
     
     #hh use should be multiplied based on bill frequency to get cost... then divide
     #except for zones will charge x number of times each year
     zt2 <- zt %>% mutate(hh_use_adj = hh_use * adjustment) %>% mutate(bill2months = ifelse(bill_frequency == "quarterly", 4, ifelse(bill_frequency == "bi-monthly", 2, ifelse(bill_frequency == "semi-annually", 6, ifelse(bill_frequency=="annually", 12, 1)))))
     
+    #zt2 <- zt %>% mutate(hh_use_adj = hh_use * adjustment) %>% mutate(value_from = ifelse(bill_frequency == "quarterly", value_from/3, ifelse(bill_frequency == "bi-monthly", value_from/2, 
+    #                                                                               ifelse(bill_frequency == "semi-annually", value_from/6, ifelse(bill_frequency=="annually", value_from/12, value_from))))) %>% 
+    #  mutate(value_to = ifelse(bill_frequency == "quarterly", value_to/3, ifelse(bill_frequency == "bi-monthly", value_to/2,ifelse(bill_frequency == "semi-annually", value_to/6, 
+    #                                                                               ifelse(bill_frequency=="annually", value_to/12, value_to)))))
     
     zt2 <- zt2  %>% filter(value_from <= hh_use_adj & value_to >= hh_use_adj) %>% 
       group_by(pwsid, service_area, service, city_name, utility_name, category, zone_type, bill_frequency, hh_use, bill2months) %>% summarise(zone_cost = round(mean(cost, na.rm=TRUE),2), .groups="drop") %>% 
@@ -279,10 +288,10 @@ zone <-  merge(commod.zone, surcharge.zone, by.x=c("pwsid", "service_area", "cit
 df <- merge(foo, zone, by.x=c("pwsid", "service_area", "service", "city_name", "category", "hh_use"), by.y=c("pwsid", "service_area", "service", "city_name", "category", "hh_use"), all=TRUE)
 df <- unique(df)
 
+#Fixes for specific systems with difficult rates
 zt <- df %>% filter(pwsid=="NC0229025"); #service area has two names
 df <- df %>% mutate(service_area = ifelse(pwsid=="NC0229025", "Davidson Water", service_area)) %>% filter(is.na(hh_use)==FALSE)
 df <- df %>% mutate(service_area = ifelse(pwsid=="NC0472015", "Perquimans County/Winfall", service_area)) %>% mutate(service_area = ifelse(pwsid=="NC1014001", "Caldwell County/Gamewell", service_area))
-
 df <- df %>% mutate(base_cost = ifelse((pwsid=="CA3110003" & service == "water" & category == "inside"), 90.54, base_cost))
 #df %>% filter(pwsid=="CA3110003" & category=="inside")
 
@@ -330,19 +339,27 @@ fixed.charge <- fixed.charge %>% filter(volumetric =="no") %>% group_by(pwsid, s
                                  ifelse(bill_frequency == "semi-annually", round(cost/6, 2), ifelse(bill_frequency=="annually", round(cost/12,2), cost)))))
 
 #assume always inside rates
-fixed.charge <- fixed.charge %>% mutate(category = "inside")
+#fixed.charge <- fixed.charge %>% mutate(category = "inside")
 fixed.charge <- fixed.charge %>% group_by(pwsid, service_area, service, category) %>% summarise(base_cost = round(mean(base_cost, na.rm=TRUE),2), .groups = "drop") %>% as.data.frame()
+#take average cost by category
+fixed.charge <- fixed.charge %>% mutate(category = ifelse(category=="outside", "outside", "inside")) %>% 
+  group_by(pwsid, service_area, service, category) %>% summarise(base_cost = round(mean(base_cost, na.rm=TRUE),2), .groups = "drop") %>% as.data.frame()
 
 #For stormwater - set anticipated tier
 storm.volume <- storm.rates %>% filter(rate_type=="commodity_charge_flat" | rate_type=="commodity_charge_tier") %>% filter(volumetric=="yes") %>% mutate(hh_use = ifelse(vol_unit=="ERU", 1, ifelse(vol_unit=="square feet", res.ft, NA)))
   storm.volume <- storm.volume %>% mutate(hh_use = ifelse(vol_base==1 & vol_unit == "square feet", res.ft, hh_use))
 storm.volume <- storm.volume %>% filter(value_from <= hh_use) %>% mutate(volCost = ifelse(value_to <= hh_use, round((value_to - value_from)*cost/vol_base,2),
                                                                                           round((hh_use - value_from)*cost/vol_base, 2)))
+
+storm.volume <- storm.volume %>% mutate(category = ifelse(category=="outside", "outside", "inside"))
 storm.volume <- storm.volume %>% group_by(pwsid, service_area, service, category, bill_frequency) %>% summarize(volCost = sum(volCost, na.rm=TRUE), .groups="drop") %>% 
   mutate(vol_cost = ifelse(bill_frequency == "quarterly", round(volCost/3,2), ifelse(bill_frequency == "bi-monthly", round(volCost/2, 2), 
                                 ifelse(bill_frequency == "semi-annually", round(volCost/6, 2), ifelse(bill_frequency=="annually", round(volCost/12,2), volCost))))) %>% as.data.frame()
 
-storm.zone <- storm.rates %>% filter(volumetric=="zone") %>%  mutate(hh_use = ifelse(vol_unit=="ERU", 1, ifelse(vol_unit=="square feet", res.ft, NA)))
+storm.zone <- storm.rates %>% filter(volumetric=="zone") %>% mutate(category = ifelse(category=="outside", "outside", "inside")) %>%  
+  mutate(hh_use = ifelse(vol_unit=="ERU", 1, ifelse(vol_unit=="square feet", res.ft, 
+                  ifelse(vol_unit=="percent impervious surface", percent.impervious, 
+                  ifelse(vol_unit=="tax-based", tax.based, NA)))))
 
 storm.zone <- storm.zone  %>% filter(value_from <= hh_use & value_to >= hh_use) %>% 
   group_by(pwsid, service_area, service, category, bill_frequency) %>% summarise(zoneCost = mean(cost, na.rm=TRUE), .groups='drop') %>% 
