@@ -6,6 +6,8 @@ Don't Panic Labs assisted in creating mapbox tiles: https://dontpaniclabs.com/
 
 Information about Project: https://nicholasinstitute.duke.edu/water-affordability/
 
+Paper explaining methods: http://dx.doi.org/10.1002/aws2.1260
+
 Current release version and doi: <a href="https://zenodo.org/badge/latestdoi/385713868"><img src="https://zenodo.org/badge/385713868.svg" alt="DOI"></a>
 
 ## Folders
@@ -17,8 +19,9 @@ Current release version and doi: <a href="https://zenodo.org/badge/latestdoi/385
 
 ## Versions
 
-1. v2021-1.0: Data that matches forthcoming paper. Includes: CA, PA, NC, part of TX, and 9 utilities in OR. There are 1,800 utilities in the data.
+1. v2021-1.0: Data that matches our <a href="http://dx.doi.org/10.1002/aws2.1260"</a>. Includes: CA, PA, NC, part of TX, and 9 utilities in OR. There are 1,800 utilities in the data.
 2. v2021-2.0: Added remaining utilities in TX, NJ, and NM. There are 2,349 utilities in the data.
+3. v2021-3.2: Added utilities in CT, KS, and WA. There are 3,038 utilities represented here. Methods were updated to allow for the inclusion of local minimum wages based on  Version 3.0 and 3.1 are nearly identical but were removed due to syncing challenges with Zenodo.
 
 
 ## Terms of Use
@@ -26,10 +29,9 @@ Current release version and doi: <a href="https://zenodo.org/badge/latestdoi/385
 2. Files in the www folder are licensed under MIT license.
 3. Attribute the data, code, and dashboard as "Patterson, Lauren, Martin Doyle, Aislinn McLaughlin, and Sophia Bryson. 2021. Water Affordability Data Repository. Nicholas Institute for Environmental Policy Solutions at Duke University. https://github.com/NIEPS-Water-Program/water-affordability" or "NIEPS Water Affordability Data" for short, and the url: https://github.com/NIEPS-Water-Program/water-affordability. You can cite all versions using the doi: 10.5281/zenodo.5156654. The doi for the current version is:
 <a href="https://zenodo.org/badge/latestdoi/385713868"><img src="https://zenodo.org/badge/385713868.svg" alt="DOI"></a>
+4. Attribute the concept of this approach and our findings to: Patterson, LA and MW Doyle. 2021 Measuring water affordability and the financial capability of utilities. AWWA Water Science (e1260). 25pp. doi: http://dx.doi.org/10.1002/aws2.1260.
 
-5. We currently have a paper in review that we will ask to be cited for authors using these data in publications. We will provide those details once the paper is accepted.
-
-6. This work is licensed under a
+5. This work is licensed under a
 [Creative Commons Attribution 4.0 International License][cc-by].[![CC BY 4.0][cc-by-image]][cc-by]
 
 Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
