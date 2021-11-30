@@ -19,7 +19,7 @@ Current release version and doi: <a href="https://zenodo.org/badge/latestdoi/385
 
 ## Versions
 
-1. v2021-1.0: Data that matches our <a href="http://dx.doi.org/10.1002/aws2.1260"</a>. Includes: CA, PA, NC, part of TX, and 9 utilities in OR. There are 1,800 utilities in the data.
+1. v2021-1.0: Data that matches our <a href="http://dx.doi.org/10.1002/aws2.1260">paper</a>. Includes: CA, PA, NC, part of TX, and 9 utilities in OR. There are 1,800 utilities in the data.
 2. v2021-2.0: Added remaining utilities in TX, NJ, and NM. There are 2,349 utilities in the data.
 3. v2021-3.2: Added utilities in CT, KS, and WA. There are 3,038 utilities represented here. Methods were updated to allow for the inclusion of local minimum wages based on  Version 3.0 and 3.1 are nearly identical but were removed due to syncing challenges with Zenodo.
 
