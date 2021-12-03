@@ -400,6 +400,33 @@ ct.sys <- readOGR("C:\\Users\\lap19\\Downloads\\Buffered_Community_PWS_Service_A
 ct.sys <- read_sf("new_states/ct_systems.geojson")
 ct.sys <- ct.sys  %>% select(pwsid, pws_name) %>% rename(gis_name = pws_name)
 if (FALSE %in% st_is_valid(ct.sys)) {ct.sys <- suppressWarnings(st_buffer(ct.sys[!is.na(st_is_valid(ct.sys)),], 0.0)); print("fixed")}#fix corrupt shapefiles
+
+#CT merged several pswid together
+aquarion <- c("CT1350011", "CT0150011", "CT1370011", "CT1240011", "CT1280021", "CT0900011",
+              "CT0570011", "CT0350011", "CT0960011", "CT1180011", "CT0970011", "CT0180071", 
+              "CT0180141", "CT0189961", "CT1220011", "CT1000011", "CT1180021", "CT0980011",
+              "CT0098011", "CT1390021", "CT1680011", "CT0910011", "CT0680011", "CT0740011",
+              "CT0378011", "CT1180081", "CT0189791")
+
+#Greenwhich, Stanford, Ridgefield and New Canaan are all merged together
+ct.muni <- muni %>% filter(state=="CT")
+main.aq <- ct.sys %>% filter(pwsid=="CT0150011"); mapview::mapview(main.aq)
+int.sel <- st_intersection(main.aq, ct.muni);
+mapview::mapview(int.sel)
+green <- int.sel %>% filter(city_name=="Greenwich") %>% mutate(pwsid="CT0570011", gis_name="AQUARION WATER CO - GREENWICH") %>% 
+  select(pwsid, gis_name) %>% group_by(pwsid, gis_name) %>% summarize(n=n(), .groups="drop") %>% select(-n); mapview::mapview(green)
+stam <- int.sel %>% filter(city_name=="Stamford") %>% mutate(pwsid="CT1350011", gis_name="AQUARION WATER CO - STAMFORD") %>% 
+  select(pwsid, gis_name) %>% group_by(pwsid, gis_name) %>% summarize(n=n(), .groups="drop") %>% select(-n); mapview::mapview(stam)
+new.can <- int.sel %>% filter(city_name=="New Canaan") %>% mutate(pwsid="CT0900011", gis_name="AQURAION WATER CO - NEW CANAAN") %>% 
+  select(pwsid, gis_name) %>% group_by(pwsid, gis_name) %>% summarize(n=n(), .groups="drop") %>% select(-n); mapview::mapview(new.can)
+
+main <- int.sel %>% filter(city_name %notin% c("Greenwich", "Stamford", "New Canaan", "Ridgefield")) %>% 
+  select(pwsid, gis_name) %>% group_by(pwsid, gis_name) %>% summarize(n=n(), .groups="drop") %>% select(-n); mapview::mapview(main)
+
+ct.sys = ct.sys %>% filter(pwsid != "CT0150011") %>% group_by(pwsid, gis_name) %>% summarize(n=n(), .groups="drop") %>% select(-n)
+ct.sys <- rbind(ct.sys, main, green, stam, new.can)
+mapview::mapview(ct.sys)
+
 geojson_write(ct.sys, file=paste0(swd_data, "ct_systems.geojson"))
 
 rm(ct.sys)

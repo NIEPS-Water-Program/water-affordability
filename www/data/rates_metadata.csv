@@ -1379,8 +1379,21 @@
 "CA5810003","Olivehurst Public Utility District","Olivehurst Public Utility District","Olivehurst Public Utility District",2021-01-01,"2021","wastewater","https://www.opud.org/files/6d6b621ac/Water+Sewer_Fact_Sheet_01-2021.pdf",2021,2
 "CA5810004","Wheatland City","Wheatland City","Wheatland City",2020-10-01,"2020","drinking water","http://www.wheatland.ca.gov/departments/public-works/",2021,1
 "CA5810004","Wheatland City","Wheatland City","Wheatland City",2020-10-01,"2020","wastewater","http://www.wheatland.ca.gov/departments/public-works/",2021,2
+"CT0040011","CTWC - Avon Water Company","Avon City","CTWC - Avon Water Company",2021-07-01,"2021","drinking water","https://www.ctwater.com/customers/rates-and-billing/rate-schedule",2021,1
+"CT0040011","CTWC - Avon Water Company","Avon City","Avon City",2017-03-09,"2017","wastewater","https://www.avonct.gov/sites/g/files/vyhlif151/f/file/file/public_info_meetingmarch_2017.pdf",2021,2
 "CT0090011","Bethel Town","Bethel Town","Bethel Town",2021-01-01,"2021","drinking water","https://bethel-ct.gov/content/117/439/6980.aspx",2021,1
 "CT0090011","Bethel Town","Bethel Town","Bethel Town",2021-01-01,"2021","wastewater","https://bethel-ct.gov/content/117/439/6980.aspx",2021,2
+"CT0150011","Aquarion Water Co - Main","Bridgeport City","Aquarion Water Co - Main",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
+"CT0150011","Aquarion Water Co - Main","Fairfield Town","Aquarion Water Co - Main",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
+"CT0150011","Aquarion Water Co - Main","Shelton City","Aquarion Water Co - Main",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
+"CT0150011","Aquarion Water Co - Main","Stratford Town","Aquarion Water Co - Main",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
+"CT0150011","Aquarion Water Co - Main","Trumbull City","Aquarion Water Co - Main",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
+"CT0150011","Aquarion Water Co - Main","Westport Town","Aquarion Water Co - Main",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
+"CT0150011","Aquarion Water Co - Main","Bridgeport City","Aquarion Water Co - Main",2021-01-01,"2021","wastewater","https://bridgeportct.gov/content/341307/345380/345393.aspx",2021,2
+"CT0150011","Aquarion Water Co - Main","Fairfield Town","Fairfield Town",2021-01-01,"2021","wastewater","https://fairfieldct.org/seweruse",2021,2
+"CT0150011","Aquarion Water Co - Main","Stratford Town","Stratford Town",2015-01-01,"2015","wastewater","https://www.stratfordct.gov/content/39832/39846/39927/40977.aspx",2021,2
+"CT0150011","Aquarion Water Co - Main","Trumbull City","Trumbull City",2021-01-01,"2021","wastewater","https://www.trumbull-ct.gov/faq.aspx?TID=28",2021,2
+"CT0150011","Aquarion Water Co - Main","Westport Town","Westport Town",2017-01-01,"2017","wastewater","https://www.westportct.gov/government/departments-a-z/public-works-department/faqs#13",2021,2
 "CT0170011","Bristol City","Bristol City","Bristol City",2019-07-01,"2019","drinking water","https://www.bristolwaterdept.org/",2021,1
 "CT0170011","Bristol City","Bristol City","Bristol City",2021-03-01,"2021","wastewater","https://www.bristolwaterdept.org/",2021,2
 "CT0180141","Aquarion Water Co - W. Brookfield","Brookfield Town","Aquarion Water Co - W. Brookfield",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
@@ -1401,7 +1414,10 @@
 "CT0450011","East Lyme Town","East Lyme Town","East Lyme Town",2020-11-01,"2020","wastewater","https://eltownhall.com/government/departments/water-sewer-utilities/sewer-utilities/sewer-usage-rates/",2021,2
 "CT0520011","CTWC - Unionville","Avon Town","CTWC - Unionville",2021-07-01,"2021","drinking water","https://www.ctwater.com/customers/rates-and-billing/rate-schedule",2021,1
 "CT0520011","CTWC - Unionville","Farmington Town","CTWC - Unionville",2021-07-01,"2021","drinking water","https://www.ctwater.com/customers/rates-and-billing/rate-schedule",2021,1
+"CT0520011","CTWC - Unionville","Avon Town","Avon Town",2017-03-09,"2017","wastewater","https://www.avonct.gov/sites/g/files/vyhlif151/f/file/file/public_info_meetingmarch_2017.pdf",2021,2
 "CT0520011","CTWC - Unionville","Farmington Town","Farmington Town",2020-10-01,"2020","wastewater","https://www.farmington-ct.org/departments/tax-collector-s-office/mill-rate-and-special-service-charge-history",2021,2
+"CT0570011","Aquarion Water Co - Greenwich","Greenwich Town","Aquarion Water Co - Greenwich",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
+"CT0570011","Aquarion Water Co - Greenwich","Greenwich Town","Homeowners",2014-02-07,"2014","septic/on-site","https://www.greenwichct.gov/259/Sewer",2021,3
 "CT0580011","Jewett City Water Company","Jewett City","Jewett City Water Company",2021-06-01,"2021","drinking water","https://jewettcitywater.com/source/JWC-Rates.pdf",2021,1
 "CT0580011","Jewett City Water Company","Jewett City","Jewett City",2010-09-01,"2010","wastewater","http://jewettcitydpu.com/rates.html",2021,2
 "CT0590011","Groton Utilities","Groton City","Groton Utilities",2021-10-01,"2021","drinking water","https://grotonutilities.com/water-2/water-rates/",2021,1
@@ -1435,6 +1451,8 @@
 "CT0864011","Montville WPCA","Montville WPCA","Montville WPCA",2021-01-01,"2021","wastewater","https://www.montvillewpca.com/faqs/",2021,2
 "CT0890011","New Britain Town","New Britain Town","New Britain Town",2019-07-01,"2019","drinking water","https://www.newbritainct.gov/services/water_department/water_n_sewer_rates.htm",2021,1
 "CT0890011","New Britain Town","New Britain Town","New Britain Town",2019-07-01,"2019","wastewater","https://www.newbritainct.gov/services/water_department/water_n_sewer_rates.htm",2021,2
+"CT0900011","Aquarion Water Co - New Canaan","New Canaan Town","Aquarion Water Co - New Canaan",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
+"CT0900011","Aquarion Water Co - New Canaan","New Canaan Town","New Canaan Town",2021-07-01,"2021","wastewater","https://www.newcanaan.info/departments/public_works/information_regarding_new_sewer_charges.php",2021,2
 "CT0910011","Aquarion Water Co - Ball Pond","Aquarion Water Co - Ball Pond","Aquarion Water Co - Ball Pond",2020-10-14,"2020","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
 "CT0910011","Aquarion Water Co - Ball Pond","Aquarion Water Co - Ball Pond","Homeowners",2021-01-01,"2021","septic/on-site","septic",2021,3
 "CT0920011","New Hartford Town","New Hartford Town","New Hartford Town",2017-07-01,"2017","drinking water","https://www.newhartfordct.gov/sites/g/files/vyhlif961/f/uploads/water_sewer_rates_-_adopted_as_amended_6-29-17_.pdf",2021,1
@@ -1453,6 +1471,7 @@
 "CT0930011","Regional Water Authority","Woodbridge City","Regional Water Authority",2019-07-02,"2019","drinking water","https://dev.rwater.com/customer-care/rates-regulations",2021,1
 "CT0930011","Regional Water Authority","Ansonia City","Ansonia City",2020-07-01,"2020","wastewater","https://www.nhregister.com/valley/article/Ansonia-residents-get-break-on-sewer-fee-and-15175655.php",2021,2
 "CT0930011","Regional Water Authority","Branford Town","Branford Town",2021-07-01,"2021","wastewater","https://www.branford-ct.gov/sites/default/files/field/files-docs-agenda-minutes/legal_notice_fee_approved_21.pdf",2021,2
+"CT0930011","Regional Water Authority","Cheshire City","Cheshire City",2021-07-01,"2021","wastewater","https://p1cdn4static.civiclive.com/UserFiles/Servers/Server_8580856/Image/Government/Finance/FY%2020-21%20adopted%20operating%20plan%20and%20cep.pdf",2021,2
 "CT0930011","Regional Water Authority","Derby City","Derby City",2016-05-26,"2016","wastewater","https://www.derbyct.gov/media/Government/Legal%20Notices/WPCA%20Legal%20Notice%202016-2017%20Sewer%20Use%20Rates%20.pdf",2021,2
 "CT0930011","Regional Water Authority","East Haven Town","Greater New Haven Water Pollution Control Authority",2021-07-01,"2021","wastewater","https://gnhwpca.com/custom-service/sewer-rates/",2021,2
 "CT0930011","Regional Water Authority","Hamden City","Greater New Haven Water Pollution Control Authority",2021-07-01,"2021","wastewater","https://gnhwpca.com/custom-service/sewer-rates/",2021,2
@@ -1461,10 +1480,10 @@
 "CT0930011","Regional Water Authority","West Haven Town","Greater New Haven Water Pollution Control Authority",2021-07-01,"2021","wastewater","https://gnhwpca.com/custom-service/sewer-rates/",2021,2
 "CT0930011","Regional Water Authority","Woodbridge City","Greater New Haven Water Pollution Control Authority",2021-07-01,"2021","wastewater","https://gnhwpca.com/custom-service/sewer-rates/",2021,2
 "CT0930011","Regional Water Authority","Milford Town","Milford Town",2020-07-01,"2020","wastewater","https://www.ci.milford.ct.us/tax-collector/pages/sewer-use-fee-history",2021,2
-"CT0930011","Regional Water Authority","Orange Town","Orange Town",2013-09-12,"2013","wastewater","https://www.orange-ct.gov/776/WPCA",2021,2
-"CT0930011","Regional Water Authority","Cheshire City","Water Pollution Control Authority",2021-07-01,"2021","wastewater","https://www.bridgeportct.gov/content/341307/345380/345393.aspx",2021,2
 "CT0960011","Aquarion Water Co - New Milford","New Milford Town","Aquarion Water Co - New Milford",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
 "CT0960011","Aquarion Water Co - New Milford","New Milford Town","New Milford Town",2016-07-01,"2016","wastewater","https://www.newmilford.org/filestorage/7526/7528/7803/7929/8403/03-17-2016_Agenda.pdf",2021,2
+"CT1000011","Aquarion Water Co - North Canaan","North Canaan Town","Aquarion Water Co - North Canaan",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
+"CT1000011","Aquarion Water Co - North Canaan","North Canaan Town","North Canaan Town",2019-07-01,"2019","wastewater","https://www.ncadvertiser.com/news/town-government/article/New-Canaan-residents-should-save-money-on-sewer-14048586.php",2021,2
 "CT1020021","SCWA - North Stonington","North Stonington Town","SCWA - North Stonington",2020-09-01,"2020","drinking water","https://www.waterauthority.org/rates",2021,1
 "CT1020021","SCWA - North Stonington","North Stonington Town","Homeowners",2021-01-01,"2021","wastewater","septic",2021,2
 "CT1030011","Norwalk First Taxing District","Norwalk City","Norwalk First Taxing District",2021-01-01,"2021","drinking water","https://www.firstdistrictwater.org/rates-and-fees",2021,1
@@ -1492,6 +1511,8 @@
 "CT1310011","Southington Water Department","Southington Town","Southington Town",2014-07-01,"2014","wastewater","https://www.southington.org/departments/sewer_department/new_billing_rate_structure.php",2021,2
 "CT1340011","CTWC - Stafford","Stafford Town","CTWC - Stafford",2021-07-01,"2021","drinking water","https://www.ctwater.com/customers/rates-and-billing/rate-schedule",2021,1
 "CT1340011","CTWC - Stafford","Stafford Town","Stafford Town",2021-07-01,"2021","wastewater","http://www.staffordct.org/news.php?table=news_wpca&id=8",2021,2
+"CT1350011","Aquarion Water Co - Main","Stamford City","Aquarion Water Co - Main",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
+"CT1350011","Aquarion Water Co - Main","Stamford City","Stamford City",2021-07-01,"2021","wastewater","https://www.stamfordct.gov/government/operations/water-pollution-control-authority",2021,2
 "CT1390021","Aquarion Water Co - Suffield","Suffield Town","Aquarion Water Co - Suffield",2014-02-07,"2014","drinking water","https://www.aquarionwater.com/customer-care/rates-information",2021,1
 "CT1390021","Aquarion Water Co - Suffield","Suffield Town","Suffield Town",2016-07-01,"2016","wastewater","https://resources.finalsite.net/images/v1570634726/suffieldctgov/tdq6qtfba5c78jamkkhx/20160422_Fact_sheet_-_Budget.pdf",2021,2
 "CT1400011","CTWC - Thomaston","Thomaston Town","CTWC - Thomaston",2021-07-01,"2021","drinking water","https://www.ctwater.com/customers/rates-and-billing/rate-schedule",2021,1

@@ -632,7 +632,9 @@
 "CA5810002","Linda County Water District","ca","Medium-Large","Local",13,2020
 "CA5810003","Olivehurst Public Utility District","ca","Medium-Large","Local",13,2020
 "CA5810004","Wheatland City","ca","Medium","Local",13,2020
+"CT0040011","CTWC - Avon Town","ct","Medium-Large","Private",13,2021
 "CT0090011","Bethel Town","ct","Medium","Local",13,2021
+"CT0150011","Aquarion Water Co - Main","ct","Large","Private",13,2021
 "CT0170011","Bristol City","ct","Medium-Large","Local",13,2021
 "CT0180141","Aquarion Water Co - W. Brookfield","ct","Small","Private",13,2021
 "CT0261031","CTWC - Chester","ct","Medium","Private",13,2021
@@ -643,6 +645,7 @@
 "CT0378011","Aquarion Water Co - E. Derby","ct","Small","Private",13,2021
 "CT0450011","East Lyme Town","ct","Medium-Large","Local",13,2021
 "CT0520011","CTWC - Unionville","ct","Medium-Large","Private",13,2021
+"CT0570011","Aquarion Water Co - Greenwich","ct","Medium-Large","Private",13,2021
 "CT0580011","Jewett City Water Company","ct","Medium","Private",13,2021
 "CT0590011","Groton Utilities","ct","Medium-Large","Local",13,2021
 "CT0640011","Metropolitan District Commission","ct","Large","Local",13,2021
@@ -657,10 +660,12 @@
 "CT0860011","SCWA - Montville","ct","Small","Local",13,2021
 "CT0864011","Montville WPCA","ct","Small","Local",13,2021
 "CT0890011","New Britain Town","ct","Medium-Large","Local",13,2021
+"CT0900011","Aquarion Water Co - New Canaan","ct","Medium-Large","Private",13,2021
 "CT0910011","Aquarion Water Co - Ball Pond","ct","Small","Private",13,2021
 "CT0920011","New Hartford Town","ct","Small","Local",13,2021
 "CT0930011","Regional Water Authority","ct","Large","Local",13,2021
 "CT0960011","Aquarion Water Co - New Milford","ct","Medium-Large","Private",13,2021
+"CT1000011","Aquarion Water Co - North Canaan","ct","Small","Private",13,2021
 "CT1020021","SCWA - North Stonington","ct","Small","Local",13,2021
 "CT1030011","Norwalk First Taxing District","ct","Medium-Large","Local",13,2021
 "CT1030021","South Norwalk Electric & Water","ct","Medium-Large","Local",13,2021
@@ -675,6 +680,7 @@
 "CT1300021","Heritage Water Company","ct","Medium","Private",13,2021
 "CT1310011","Southington Water Department","ct","Medium-Large","Local",13,2021
 "CT1340011","CTWC - Stafford","ct","Small","Private",13,2021
+"CT1350011","Aquarion Water Co - Stamford","ct","Large","Private",13,2021
 "CT1390021","Aquarion Water Co - Suffield","ct","Small","Private",13,2021
 "CT1400011","CTWC - Thomaston","ct","Medium","Private",13,2021
 "CT1410011","CTWC - Thompson","ct","Small","Private",13,2021
