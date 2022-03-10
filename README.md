@@ -25,20 +25,26 @@ Current release version and doi: <a href="https://zenodo.org/badge/latestdoi/385
 
 
 ## Terms of Use
-1. Files in the data and rcode folder are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0: https://creativecommons.org/licenses/by/4.0/) by Duke University on behalf of the Nicholas Institute for Environmental Solutions.
-2. Files in the www folder are licensed under MIT license.
-3. Attribute the data, code, and dashboard as "Patterson, Lauren, Martin Doyle, Aislinn McLaughlin, and Sophia Bryson. 2021. Water Affordability Data Repository. Nicholas Institute for Environmental Policy Solutions at Duke University. https://github.com/NIEPS-Water-Program/water-affordability" or "NIEPS Water Affordability Data" for short, and the url: https://github.com/NIEPS-Water-Program/water-affordability. You can cite all versions using the doi: 10.5281/zenodo.5156654. The doi for the current version is:
+The copyrights of the Water Affordability Dashboard software and website are owned by Duke University. Developed by Lauren Patterson and Martin Doyle at the Duke Nicholas Institute for Environmental Policy Solutions.
+Use of this software and dataset is allowed for noncommercial purposes only. 
+
+The Water Affordability Dashboard project relies on four components:
+1. The dataset /data/, shared under a Creative Commons CC-BY-NC-ND-4.0 license, or as allowed by each of the data sources.
+License: https://creativecommons.org/licenses/by-nc-nd/4.0/
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a>
+
+2. The R algorithm /rcode/, shared under a GPLv3 license: License: https://www.gnu.org/licenses/gpl-3.0.en.html
+
+3. The visualization website /www/, shared under the HTML5 Boilerplate license for noncommercial use only under the MIT license.
+
+For commercial purposes or inquiries regarding licensing, please contact the Digital Innovations department at the Duke Office for Translation & Commercialization (OTC) (https://olv.duke.edu/software/) at otcquestions@duke.edu with reference to ‘OTC File No. 7788’.
+
+Please note that this software is distributed AS IS, WITHOUT ANY WARRANTY; and without the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+4. Attribute the data, code, and dashboard as "Patterson, Lauren, Martin Doyle, Aislinn McLaughlin, and Sophia Bryson. 2021. Water Affordability Data Repository. Nicholas Institute for Environmental Policy Solutions at Duke University. https://github.com/NIEPS-Water-Program/water-affordability" or "NIEPS Water Affordability Data" for short, and the url: https://github.com/NIEPS-Water-Program/water-affordability. You can cite all versions using the doi: 10.5281/zenodo.5156654. The doi for the current version is:
 <a href="https://zenodo.org/badge/latestdoi/385713868"><img src="https://zenodo.org/badge/385713868.svg" alt="DOI"></a>
-4. Attribute the concept of this approach and our findings to: Patterson, LA and MW Doyle. 2021 Measuring water affordability and the financial capability of utilities. AWWA Water Science (e1260). 25pp. doi: http://dx.doi.org/10.1002/aws2.1260.
 
-5. This work is licensed under a
-[Creative Commons Attribution 4.0 International License][cc-by].[![CC BY 4.0][cc-by-image]][cc-by]
-
-Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
-
-[cc-by]: http://creativecommons.org/licenses/by/4.0/
-[cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
-[cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
+5.  Attribute the concept of this approach and our findings to: Patterson, LA and MW Doyle. 2021 Measuring water affordability and the financial capability of utilities. AWWA Water Science (e1260). 25pp. doi: http://dx.doi.org/10.1002/aws2.1260.
 
 
 
