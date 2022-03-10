@@ -29,7 +29,7 @@ The copyrights of the Water Affordability Dashboard software and website are own
 Use of this software and dataset is allowed for noncommercial purposes only. 
 
 The Water Affordability Dashboard project relies on four components:
-1. The dataset /data/, shared under a Creative Commons CC-BY-NC-ND-4.0 license, or as allowed by each of the data sources.
+1. The data/rates/ are shared under a Creative Commons CC-BY-NC-ND-4.0 license.
 License: https://creativecommons.org/licenses/by-nc-nd/4.0/
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a>
 
