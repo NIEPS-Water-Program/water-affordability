@@ -37,7 +37,7 @@ License: https://creativecommons.org/licenses/by-nc-nd/4.0/
 
 3. The visualization website /www/, shared under the HTML5 Boilerplate license for noncommercial use only under the MIT license.
 
-For commercial purposes or inquiries regarding licensing, please contact the Digital Innovations department at the Duke Office for Translation & Commercialization (OTC) (https://olv.duke.edu/software/) at otcquestions@duke.edu with reference to ‘OTC File No. 7788’.
+For commercial purposes or inquiries regarding licensing, please contact the Digital Innovations department at the Duke Office for Translation & Commercialization (OTC) (https://olv.duke.edu/software/) at otcquestions@duke.edu with reference to ‘OTC File No. 7797’.
 
 Please note that this software is distributed AS IS, WITHOUT ANY WARRANTY; and without the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
